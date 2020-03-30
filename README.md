@@ -6,7 +6,7 @@ This is a sandbox plain HTML, CSS and JavaScript project, created to host our at
 [Frengine](https://github.com/robo-monk/frengine) will give us a document with roughly the following HTML structure.
   
   - `div` page
-    - `div` line
+    - `line` line
       - `wt` word *with an `l` attrbute giving us the relative y of the word*
   
 ---
@@ -15,5 +15,3 @@ This is a sandbox plain HTML, CSS and JavaScript project, created to host our at
     - loop through each `line`
       - loop through each `word`
         - render the pointer on each word by taking the `l` attribute and converting it to ms
-
-

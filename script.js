@@ -1,4 +1,45 @@
-var interval = 25; // ms
+class Line {
+  constructor(div) {
+    this.height = 0
+    this.words = []
+  }
+}
+
+class Word {
+  constructor(wt) {
+    this.content = ''
+    this.time = 0
+  }
+}
+
+class Instance {}
+
+var lines = []
+var pointer = document.createElement('div')
+
+function setUpDoc() {
+  word_divs = document.getElementsByTagName("wt")
+  line_divs = document.getElementsByTagName("line")
+  setUpPointer()
+  setUpLines(line_divs, lines)
+}
+
+function setUpPointer() {
+  pointer = document.createElement('div')
+  $(pointer).css({ 'position': 'absolute', 'outline': 'solid 1px red', 'background-color': 'transparent', 'width': '10vw', 'height': '20px', 'z-index': '0', 'opacity': '100%' });
+  $('#reader').append(pointer) // TODO fix pointer's initial placement
+}
+
+function setUpLines(lines_div, lines_array) {
+  looper(lines_div, (line) => {
+    lines_array.push(new Line(line))
+  })
+}
+
+setUpDoc();
+
+
+var interval = 550; // ms
 var expected = Date.now() + interval;
 setTimeout(step, interval);
 function step() {
@@ -13,35 +54,17 @@ function step() {
   setTimeout(step, Math.max(0, interval - dt)); // take into account drift
 }
 
-
-// TODO add consts
-
-//setting up the pointer
-var pointer = document.createElement('div')
-$(pointer).css({ 'position': 'absolute', 'background-color': '#FFE600', 'width': '100vw', 'height': '20px', 'z-index': '69', 'opacity': '70%' });
-$('#reader').append(pointer) // TODO fix pointer's initial placement
-
-
-var pages_nodes = document.getElementById('page-container').childNodes
-page_one = pages_nodes[0]
-page_one_nodes = get_kids(page_one)
-page_one_content_nodes = get_kids(page_one_nodes[0])
-page_one_main_text = page_one_content_nodes[page_one_content_nodes.length - 1]
-// page_one_main_text.append(page_one_content_nodes[page_one_content_nodes.length - 1])
-
-main_text_divs = get_kids(page_one_main_text)
-
 var line = 0
+var word = 0
 
 function tiktok() {
-
-  current_line = main_text_divs[line]
-  current_line.style.zIndex = 150
-  var destination = $(current_line).offset();
-  $(pointer).css({ top: destination.top - 5 });
-  line += 1
-
-  if ($(current_line).is(':space')) {
+  current_line = lines[line]
+  current_word = word_divs[word]
+  var destination = $(current_word).offset();
+  $(pointer).css({ top: destination.top - 5, left: destination.left });
+  // line += 1
+  word += 1
+  if ($(current_word).is(':space')) {
     // this shit is whitespace so skiiiip
     tiktok();
   }
