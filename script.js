@@ -26,7 +26,7 @@ class Marker {
   mark(that) {
     let h = (that.height)/4
     let w = (that.width) / 4
-    var destination = $(that.dom).offset();
+    let destination = $(that.dom).offset();
     // destination['top'] -= 0
     $(this.dom).offset(destination);
     $(this.dom).css({
@@ -77,8 +77,8 @@ class Instance {
 
 // set up
 
-var lines = []
-var marker = null
+let lines = []
+let marker = null
 
 function setUpDoc() {
   word_divs = document.getElementsByTagName("wt")
@@ -88,7 +88,7 @@ function setUpDoc() {
 }
 
 function setUpPointer() {
-  var pointer_div = document.createElement('div')
+  let pointer_div = document.createElement('div')
   $(pointer_div).css(pointer_css_dictionary);
   $('#reader').append(pointer_div) // TODO fix pointer's initial placement
   marker = new Marker(pointer_div)
@@ -109,11 +109,11 @@ marker.mark(test_word)
 print(test_line.width)
 
 // initialising the locked loop
-var interval = frame_interval_ms; // ms
-var expected = Date.now() + interval;
+let interval = frame_interval_ms; // ms
+let expected = Date.now() + interval;
 setTimeout(step, interval);
 function step() {
-  var dt = Date.now() - expected; // the drift (positive for overshooting)
+  let dt = Date.now() - expected; // the drift (positive for overshooting)
   if (dt > interval) {
     // TODO refresh the page or reset the dt
     // alert('whats up')
@@ -126,15 +126,15 @@ function step() {
 
 // locked loop
 
-var line = 0
-var current_line = null
-var word = 0
-var words = 0
-var instance = 0
-var instances = 0
+let line = 0
+let current_line = null
+let word = 0
+let words = 0
+let instance = 0
+let instances = 0
 
-// var tiktok = 0
-// var tiktoks = 0
+// let tiktok = 0
+// let tiktoks = 0
 
 // function tiktok2() {
 //   if (tiktok<tiktoks){
@@ -163,13 +163,13 @@ function tiktok() {
   
 }
 
-// var d = document.getElementById('yourDivId');
+// let d = document.getElementById('yourDivId');
 // d.style.position = "absolute";
 // d.style.left = x_pos + 'px';
 // d.style.top = y_pos + 'px';
 
 // function placeDiv(x_pos, y_pos) {
-//   var d = document.getElementById('yourDivId');
+//   let d = document.getElementById('yourDivId');
 //   d.style.position = "absolute";
 //   d.style.left = x_pos + 'px';
 //   d.style.top = y_pos + 'px';
@@ -184,7 +184,7 @@ function print(val) {
 }
 
 function looper(elements, func) {
-  for (var i = 0; i < elements.length; i++) {
+  for (let i = 0; i < elements.length; i++) {
     func(elements[i])
   }
 }
@@ -194,6 +194,6 @@ function get_kids(element) {
 }
 
 jQuery.expr[':'].space = function (elem) {
-  var $elem = jQuery(elem);
+  let $elem = jQuery(elem);
   return !$elem.children().length && !$elem.text().match(/\S/);
 }
