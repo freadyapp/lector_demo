@@ -9,10 +9,11 @@ const pointer_css_dictionary = {
   'z-index': '0', 
   'opacity': '100%' 
 }
-const frame_interval_ms = 550
+const frame_interval_ms = 25
 
 
 // classes
+
 class Marker {
   constructor(div) {
     this.dom = div
@@ -26,20 +27,21 @@ class Marker {
     let h = (that.height)/4
     let w = (that.width) / 4
     var destination = $(that.dom).offset();
-    destination['top'] -= 0
+    // destination['top'] -= 0
     $(this.dom).offset(destination);
-    print(destination)
     $(this.dom).css({
       'width': w,
       'height': h
-    });    // $(this.dom).css({ top: that.offsetTop - 5, left: that.offsetLeft });
+    });
   }
 }
+
 class MapElement {
   constructor(div) {
     this.width = div.offsetWidth
     this.height = div.offsetHeight
     this.dom = div
+    // this.pre = pre
   }
 
 }
@@ -48,7 +50,13 @@ class Line extends MapElement{
   constructor(lt) {
     super(lt)
     this.words = []
-    looper(lt.getElementsByTagName('wt'), (word_div) => this.words.push(new Word(word_div)))
+    this.time = 0
+    looper(lt.getElementsByTagName('wt'), (wt) => {
+      let w = new Word(wt)
+      this.words.push(w)
+      this.time += w.time
+    })
+    print(this.time)
   }
 }
 
@@ -56,12 +64,15 @@ class Word extends MapElement{
   constructor(wt) {
     super(wt)
     this.content = wt.textContent
-    this.time = wt.getAttribute('l')
+    this.time = parseInt(wt.getAttribute('l'))
   }
 }
 
 class Instance {
-
+  constructor(el){
+    this.time = el.time
+    this.dom = el.dom
+  }
 }
 
 // set up
@@ -90,8 +101,8 @@ function setUpLines(lines_div, lines_array) {
 }
 
 setUpDoc();
-test_line = lines[5]
-test_word = test_line.words[3]
+test_line = lines[1]
+test_word = test_line.words[1]
 marker.mark(test_line)
 marker.mark(test_word)
 
@@ -104,11 +115,10 @@ setTimeout(step, interval);
 function step() {
   var dt = Date.now() - expected; // the drift (positive for overshooting)
   if (dt > interval) {
-    // something really bad happened. Maybe the browser (tab) was inactive?
-    // possibly special handling to avoid futile "catch up" run
     // TODO refresh the page or reset the dt
+    // alert('whats up')
   }
-  // tiktok();
+  tiktok();
   expected += interval;
   setTimeout(step, Math.max(0, interval - dt)); // take into account drift
 }
@@ -117,21 +127,41 @@ function step() {
 // locked loop
 
 var line = 0
+var current_line = null
 var word = 0
+var words = 0
+var instance = 0
+var instances = 0
+
+// var tiktok = 0
+// var tiktoks = 0
+
+// function tiktok2() {
+//   if (tiktok<tiktoks){
+//     tiktok += 1 
+//   }
+//   else {
+//     current_instanct = new Instance
+//     marker.mark(current_instanct.dom)
+//   }
+// }
 
 function tiktok() {
   current_line = lines[line]
-  current_word = word_divs[word]
-  var destination = $(current_word).offset();
-  $(pointer).css({ top: destination.top - 5, left: destination.left });
-  // line += 1
-  word += 1
-  if ($(current_word).is(':space')) {
-    // this shit is whitespace so skiiiip
-    tiktok();
+  instances = current_line.time
+  marker.mark(current_line)
+  if (instance<instances){
+    instance += 1
+  } else {
+    instance = 0
+    line += 1
+    if ($(current_line).is(':space')) {
+      // this shit is whitespace so skiiiip
+      tiktok();
+    }
   }
+  
 }
-
 
 // var d = document.getElementById('yourDivId');
 // d.style.position = "absolute";
