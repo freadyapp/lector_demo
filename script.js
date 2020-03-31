@@ -1,21 +1,73 @@
-class Line {
+// constants
+
+const pointer_css_dictionary = { 
+  'position': 'absolute', 
+  'outline': 'solid 1px red', 
+  'background-color': 'transparent', 
+  'width': '10vw', 
+  'height': '20px', 
+  'z-index': '0', 
+  'opacity': '100%' 
+}
+const frame_interval_ms = 550
+
+
+// classes
+class Marker {
   constructor(div) {
-    this.height = 0
+    this.dom = div
+  }
+
+  yeet() {
+    this.dom.style.opacity = 0;
+  }
+
+  mark(that) {
+    let h = (that.height)/4
+    let w = (that.width) / 4
+    var destination = $(that.dom).offset();
+    destination['top'] -= 0
+    $(this.dom).offset(destination);
+    print(destination)
+    $(this.dom).css({
+      'width': w,
+      'height': h
+    });    // $(this.dom).css({ top: that.offsetTop - 5, left: that.offsetLeft });
+  }
+}
+class MapElement {
+  constructor(div) {
+    this.width = div.offsetWidth
+    this.height = div.offsetHeight
+    this.dom = div
+  }
+
+}
+
+class Line extends MapElement{
+  constructor(lt) {
+    super(lt)
     this.words = []
+    looper(lt.getElementsByTagName('wt'), (word_div) => this.words.push(new Word(word_div)))
   }
 }
 
-class Word {
+class Word extends MapElement{
   constructor(wt) {
-    this.content = ''
-    this.time = 0
+    super(wt)
+    this.content = wt.textContent
+    this.time = wt.getAttribute('l')
   }
 }
 
-class Instance {}
+class Instance {
+
+}
+
+// set up
 
 var lines = []
-var pointer = document.createElement('div')
+var marker = null
 
 function setUpDoc() {
   word_divs = document.getElementsByTagName("wt")
@@ -25,9 +77,10 @@ function setUpDoc() {
 }
 
 function setUpPointer() {
-  pointer = document.createElement('div')
-  $(pointer).css({ 'position': 'absolute', 'outline': 'solid 1px red', 'background-color': 'transparent', 'width': '10vw', 'height': '20px', 'z-index': '0', 'opacity': '100%' });
-  $('#reader').append(pointer) // TODO fix pointer's initial placement
+  var pointer_div = document.createElement('div')
+  $(pointer_div).css(pointer_css_dictionary);
+  $('#reader').append(pointer_div) // TODO fix pointer's initial placement
+  marker = new Marker(pointer_div)
 }
 
 function setUpLines(lines_div, lines_array) {
@@ -37,9 +90,15 @@ function setUpLines(lines_div, lines_array) {
 }
 
 setUpDoc();
+test_line = lines[5]
+test_word = test_line.words[3]
+marker.mark(test_line)
+marker.mark(test_word)
 
+print(test_line.width)
 
-var interval = 550; // ms
+// initialising the locked loop
+var interval = frame_interval_ms; // ms
 var expected = Date.now() + interval;
 setTimeout(step, interval);
 function step() {
@@ -49,10 +108,13 @@ function step() {
     // possibly special handling to avoid futile "catch up" run
     // TODO refresh the page or reset the dt
   }
-  tiktok();
+  // tiktok();
   expected += interval;
   setTimeout(step, Math.max(0, interval - dt)); // take into account drift
 }
+
+
+// locked loop
 
 var line = 0
 var word = 0
@@ -82,6 +144,7 @@ function tiktok() {
 //   d.style.left = x_pos + 'px';
 //   d.style.top = y_pos + 'px';
 // }
+
 
 
 // utility functions
