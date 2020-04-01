@@ -17,6 +17,7 @@ This is project is at its core a sandbox, for testing out ideas with JavaScript,
         - render the pointer on each word by taking the `l` attribute and converting it to ms
 
 # Coding concept
+**Note** This concept will hopefully be implemented near the Alpha release. *Current* code may differ.
 
 ## Objectvies
 1.  Code should resemble real life. How a real life pointer works?
