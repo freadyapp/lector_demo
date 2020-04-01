@@ -56,7 +56,6 @@ class Line extends MapElement{
       this.words.push(w)
       this.time += w.time
     })
-    print(this.time)
   }
 }
 
@@ -82,6 +81,7 @@ let marker = null
 
 function setUpDoc() {
   word_divs = document.getElementsByTagName("wt")
+  print(word_divs[5])
   line_divs = document.getElementsByTagName("line")
   setUpPointer()
   setUpLines(line_divs, lines)
@@ -105,8 +105,8 @@ test_line = lines[1]
 test_word = test_line.words[1]
 marker.mark(test_line)
 marker.mark(test_word)
+print(test_word)
 
-print(test_line.width)
 
 // initialising the locked loop
 let interval = frame_interval_ms; // ms
@@ -128,33 +128,29 @@ function step() {
 
 let line = 0
 let current_line = null
-let word = 0
-let words = 0
 let instance = 0
 let instances = 0
 
-// let tiktok = 0
-// let tiktoks = 0
-
-// function tiktok2() {
-//   if (tiktok<tiktoks){
-//     tiktok += 1 
-//   }
-//   else {
-//     current_instanct = new Instance
-//     marker.mark(current_instanct.dom)
-//   }
-// }
+let words = []
+let word = 0
 
 function tiktok() {
   current_line = lines[line]
-  instances = current_line.time
-  marker.mark(current_line)
+  words = current_line.words
+  current_word = words[word]
+  instances = current_word.time
+  marker.mark(current_word)
+
   if (instance<instances){
     instance += 1
   } else {
     instance = 0
-    line += 1
+    if (word<words.length-1){
+      word += 1
+    } else {
+      line += 1
+      word = 0
+    }
     if ($(current_line).is(':space')) {
       // this shit is whitespace so skiiiip
       tiktok();
