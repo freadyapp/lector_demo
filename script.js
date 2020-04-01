@@ -41,7 +41,6 @@ class MapElement {
     this.width = div.offsetWidth
     this.height = div.offsetHeight
     this.dom = div
-    // this.pre = pre
   }
 
 }
@@ -101,14 +100,9 @@ function setUpLines(lines_div, lines_array) {
 }
 
 setUpDoc();
-test_line = lines[1]
-test_word = test_line.words[1]
-marker.mark(test_line)
-marker.mark(test_word)
-print(test_word)
-
 
 // initialising the locked loop
+
 let interval = frame_interval_ms; // ms
 let expected = Date.now() + interval;
 setTimeout(step, interval);
@@ -124,7 +118,7 @@ function step() {
 }
 
 
-// locked loop
+// LOCKED LOOP
 
 let line = 0
 let current_line = null
@@ -158,19 +152,6 @@ function tiktok() {
   }
   
 }
-
-// let d = document.getElementById('yourDivId');
-// d.style.position = "absolute";
-// d.style.left = x_pos + 'px';
-// d.style.top = y_pos + 'px';
-
-// function placeDiv(x_pos, y_pos) {
-//   let d = document.getElementById('yourDivId');
-//   d.style.position = "absolute";
-//   d.style.left = x_pos + 'px';
-//   d.style.top = y_pos + 'px';
-// }
-
 
 
 // utility functions
