@@ -9,22 +9,32 @@ const pointer_css_dictionary = {
   'z-index': '0', 
   'opacity': '100%' 
 }
-const frame_interval_ms = 25
+
+let frame_interval_ms = 25
 
 
 // classes
 
+class Toolbar {
+  constructor(div) {
+    this.dom = div
+    this.wpm = 250
+    this.auto = false
+  }
+
+  render(){
+
+  }
+}
+
 class Marker {
+
   constructor(div) {
     this.dom = div
   }
 
-  yeet() {
-    this.dom.style.opacity = 0;
-  }
-
   mark(that) {
-    let h = (that.height)/4
+    let h = (that.height) / 4
     let w = (that.width) / 4
     let destination = $(that.dom).offset();
     // destination['top'] -= 0
@@ -43,7 +53,6 @@ class MapElement {
     this.dom = div
     this.parent = p
   }
-
 }
 
 class Line extends MapElement{
@@ -69,24 +78,20 @@ class Word extends MapElement{
   }
 }
 
-class Instance {
-  constructor(el){
-    this.time = el.time
-    this.dom = el.dom
-  }
-}
 
 // set up
 
 let lines = []
 let all_words = []
 let marker = null
+let toolbar = null
 
 function setUpDoc() {
   word_divs = document.getElementsByTagName("wt")
   print(word_divs[5])
   line_divs = document.getElementsByTagName("line")
   setUpPointer()
+  setUpToolbar()
   setUpLines(line_divs, lines)
 }
 
@@ -95,6 +100,13 @@ function setUpPointer() {
   $(pointer_div).css(pointer_css_dictionary);
   $('#reader').append(pointer_div) // TODO fix pointer's initial placement
   marker = new Marker(pointer_div)
+}
+
+function setUpToolbar() {
+  let toolbar_div = document.createElement('div')
+  // $(toolbar_div).css(pointer_css_dictionary);
+  $('#reader').append(toolbar_div) // TODO fix pointer's initial placement
+  toolbar = new Toolbar(toolbar_div)
 }
 
 function setUpLines(lines_div, lines_array) {
@@ -106,6 +118,7 @@ function setUpLines(lines_div, lines_array) {
 setUpDoc();
 testword = lines[4].words[2]
 print(testword)
+
 // initialising the locked loop
 
 let interval = frame_interval_ms; // ms
@@ -125,52 +138,26 @@ function step() {
 
 // LOCKED LOOP
 
-let line = 0
-let current_line = null
-let instance = 0
+let cursor = -1
 let instances = 0
-
-let words = []
-let word = 0
-
-let dir = 1
+let instance = 0
 let wstep = 1
-let wordlim
-
+let dir = 1
 
 function tiktok() {
-  current_line = lines[line]
-  words = current_line.words
-  wordlim = words.length - 1
-  windex = word
-  current_word = words[word]
-  instances = current_word.time
-  marker.mark(current_word)
+
+  let current_word = all_words[cursor]
 
   if (instance<instances)
   {
+    marker.mark(current_word)
     instance += 1
   }
-  else 
+  else
   {
     instance = 0
-    if (0<=word && word<wordlim){
-      word += wstep
-    } else {
-      line += dir*1
-      word = 0
-      if (dir<0){
-        word = words.length-1
-      }
-
-      // if dir = 1 (6)%5 - 1 = 0
-    }
-
-    if ($(current_line).is(':space')) {
-      // this shit is whitespace so skiiiip
-      tiktok();
-    }
-    
+    cursor += wstep*dir
+    instances = all_words[cursor].time
   }
   
 }
