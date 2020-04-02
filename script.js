@@ -37,30 +37,33 @@ class Marker {
 }
 
 class MapElement {
-  constructor(div) {
+  constructor(div, p) {
     this.width = div.offsetWidth
     this.height = div.offsetHeight
     this.dom = div
+    this.parent = p
   }
 
 }
 
 class Line extends MapElement{
-  constructor(lt) {
-    super(lt)
+  constructor(lt, p) {
+    super(lt, p)
     this.words = []
     this.time = 0
     looper(lt.getElementsByTagName('wt'), (wt) => {
-      let w = new Word(wt)
+      let w = new Word(wt, this)
       this.words.push(w)
+      all_words.push(w)
+      // TODO this.time make a get mthd
       this.time += w.time
     })
   }
 }
 
 class Word extends MapElement{
-  constructor(wt) {
-    super(wt)
+  constructor(wt, p) {
+    super(wt, p)
     this.content = wt.textContent
     this.time = parseInt(wt.getAttribute('l'))
   }
@@ -76,6 +79,7 @@ class Instance {
 // set up
 
 let lines = []
+let all_words = []
 let marker = null
 
 function setUpDoc() {
@@ -100,7 +104,8 @@ function setUpLines(lines_div, lines_array) {
 }
 
 setUpDoc();
-
+testword = lines[4].words[2]
+print(testword)
 // initialising the locked loop
 
 let interval = frame_interval_ms; // ms
@@ -128,27 +133,44 @@ let instances = 0
 let words = []
 let word = 0
 
+let dir = 1
+let wstep = 1
+let wordlim
+
+
 function tiktok() {
   current_line = lines[line]
   words = current_line.words
+  wordlim = words.length - 1
+  windex = word
   current_word = words[word]
   instances = current_word.time
   marker.mark(current_word)
 
-  if (instance<instances){
+  if (instance<instances)
+  {
     instance += 1
-  } else {
+  }
+  else 
+  {
     instance = 0
-    if (word<words.length-1){
-      word += 1
+    if (0<=word && word<wordlim){
+      word += wstep
     } else {
-      line += 1
+      line += dir*1
       word = 0
+      if (dir<0){
+        word = words.length-1
+      }
+
+      // if dir = 1 (6)%5 - 1 = 0
     }
+
     if ($(current_line).is(':space')) {
       // this shit is whitespace so skiiiip
       tiktok();
     }
+    
   }
   
 }
@@ -157,16 +179,19 @@ function tiktok() {
 // utility functions
 
 function print(val) {
+  // TODO deprecate this
   console.log(val)
 }
 
 function looper(elements, func) {
+  // TODO deprecate this
   for (let i = 0; i < elements.length; i++) {
     func(elements[i])
   }
 }
 
 function get_kids(element) {
+  // TODO deprecate this
   return element.childNodes
 }
 
