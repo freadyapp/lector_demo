@@ -10,7 +10,8 @@ const pointer_css_dictionary = {
   'opacity': '100%' 
 }
 
-let frame_interval_ms = 25
+let initial_wpm = 250
+let frame_interval_ms = wpm2ms(initial_wpm)
 
 
 // classes
@@ -18,13 +19,22 @@ let frame_interval_ms = 25
 class Toolbar {
   constructor(div) {
     this.dom = div
-    this.wpm = 250
+    this.wpm_val = 250
     this.auto = false
   }
 
+  set wpm(n){
+    this.wpm_val = n
+    frame_interval_ms = wpm2ms(this.wpm)
+  }
+
+  get wpm(){
+    return this.wpm_val
+  }
   render(){
 
   }
+
 }
 
 class Marker {
@@ -116,23 +126,26 @@ function setUpLines(lines_div, lines_array) {
 }
 
 setUpDoc();
-testword = lines[4].words[2]
-print(testword)
+
+// key listeners
+var keys = {};
+window.onkeyup = function (e) { keys[e.keyCode] = false; }
+window.onkeydown = function (e) { keys[e.keyCode] = true; }
 
 // initialising the locked loop
 
-let interval = frame_interval_ms; // ms
-let expected = Date.now() + interval;
-setTimeout(step, interval);
+let expected = Date.now() + frame_interval_ms;
+setTimeout(step, frame_interval_ms);
 function step() {
   let dt = Date.now() - expected; // the drift (positive for overshooting)
-  if (dt > interval) {
+  if (dt > frame_interval_ms) {
     // TODO refresh the page or reset the dt
     // alert('whats up')
   }
   tiktok();
-  expected += interval;
-  setTimeout(step, Math.max(0, interval - dt)); // take into account drift
+  tiktokKeysHelper();
+  expected += frame_interval_ms;
+  setTimeout(step, Math.max(0, frame_interval_ms - dt)); // take into account drift
 }
 
 
@@ -145,13 +158,12 @@ let wstep = 1
 let dir = 1
 
 function tiktok() {
-
   let current_word = all_words[cursor]
 
   if (instance<instances)
   {
     marker.mark(current_word)
-    instance += 1
+    instance += 1*toolbar.auto
   }
   else
   {
@@ -162,6 +174,20 @@ function tiktok() {
   
 }
 
+
+function tiktokKeysHelper(){
+  
+  right = keys[39]
+  left = keys[37]
+      
+  if (right || left){
+    dir = 1
+    if (left) dir = -1
+    toolbar.auto = true
+  }else{
+    toolbar.auto = false
+  }
+}
 
 // utility functions
 
@@ -185,4 +211,9 @@ function get_kids(element) {
 jQuery.expr[':'].space = function (elem) {
   let $elem = jQuery(elem);
   return !$elem.children().length && !$elem.text().match(/\S/);
+}
+
+function wpm2ms(wpm){
+  const average_letters_in_word = 5 // actually 4.79
+  return 1000/((wpm / 60) * average_letters_in_word) // big brain meth
 }
