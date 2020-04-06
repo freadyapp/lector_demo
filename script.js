@@ -10,6 +10,9 @@ const pointer_css_dictionary = {
   'opacity': '100%' 
 }
 
+
+const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
+
 let initial_wpm = 250
 let frame_interval_ms = wpm2ms(initial_wpm)
 
@@ -17,22 +20,22 @@ let frame_interval_ms = wpm2ms(initial_wpm)
 // classes
 
 class Toolbar {
-  constructor(div) {
+  constructor(div, wpm_div) {
     this.dom = div
+    this.wpm_div = wpm_div
     this.wpm_val = 250
+    this.wpm = this.wpm_val
     this.auto = false
   }
 
   set wpm(n){
     this.wpm_val = n
+    $(this.wpm_div).text(this.wpm_val)
     frame_interval_ms = wpm2ms(this.wpm)
   }
 
   get wpm(){
     return this.wpm_val
-  }
-  render(){
-
   }
 
 }
@@ -112,10 +115,21 @@ function setUpPointer() {
 }
 
 function setUpToolbar() {
-  let toolbar_div = document.createElement('div')
-  // $(toolbar_div).css(pointer_css_dictionary);
-  $('#reader').append(toolbar_div) // TODO fix pointer's initial placement
-  toolbar = new Toolbar(toolbar_div)
+/*
+<div class="not_the_toolbar_you_deserve_but_the_toolbar_you_need">
+<div class="reading_sped">reading speed</div><br>
+<div id='wpm_plus' class="button_ghost_dark">*</div><br>
+<div id='wpm' class="button_ghost_dark">4</div><br>
+<div id='wpm_minus' class="button_ghost_dark">*</div><br>
+</div>
+*/
+
+  let toolbar_div = document.getElementsByClassName(toolbar_div_class_name)
+  let wpm_div = document.getElementById('wpm')
+  let wpm_plus = document.getElementById('wpm_plus')
+  let wpm_minus = document.getElementById('wpm_minus')
+
+  toolbar = new Toolbar(toolbar_div, wpm_div)
 }
 
 function setUpLines(lines_div, lines_array) {
@@ -128,8 +142,8 @@ setUpDoc();
 
 // key listeners
 var keys = {};
-window.onkeyup = function (e) { keys[e.keyCode] = false; }
-window.onkeydown = function (e) { keys[e.keyCode] = true; }
+window.onkeyup = function (e) { keys[e.keyCode] = false; keyRelease(e.keyCode) }
+window.onkeydown = function (e) { keys[e.keyCode] = true; keyPress(e.keyCode) }
 
 // initialising the locked loop
 
@@ -155,14 +169,16 @@ let instances = 0
 let instance = 0
 let wstep = 1
 let dir = 1
+let moving = false
 
 function tiktok() {
   let current_word = all_words[cursor]
+  let run = toolbar.auto || moving
 
   if (instance<instances)
   {
     marker.mark(current_word)
-    instance += 1*toolbar.auto
+    instance += 1*run
   }
   else
   {
@@ -182,9 +198,54 @@ function tiktokKeysHelper(){
   if (right || left){
     dir = 1
     if (left) dir = -1
-    toolbar.auto = true
+    moving = true
   }else{
-    toolbar.auto = false
+    moving = false
+  }
+}
+
+function keyPress(key) {
+
+  switch (key) {
+    case 37:
+      //left
+      if (!moving) cursor--
+      break;
+    case 39:
+      //right
+      if (!moving) cursor++
+      break;
+    case 187:
+      //= (intepret it as +)
+      toolbar.wpm += 10
+      break;
+    case 189:
+      //- 
+      toolbar.wpm -= 10
+      break;
+    default:
+    // code block
+  }
+}
+
+
+function keyRelease(key){
+
+  switch (key) {
+    case 37:
+      //left
+      moving = false
+      break;
+    case 39:
+      //right
+      moving = false
+      break;
+    case 65:
+      //a
+      toolbar.auto = !toolbar.auto
+      break;
+    default:
+    // code block
   }
 }
 
