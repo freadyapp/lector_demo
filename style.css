@@ -1,3 +1,280 @@
 body {
-  background-color: gray;
+	 background-color: #f1f1f1;
 }
+ .not_a_wrapper {
+	 padding: 20px;
+	 display: grid;
+	 grid-template-columns: repeat(8, 1fr);
+	 grid-gap: 10px;
+	 grid-auto-rows: 100px;
+	 grid-template-areas: "hl hl h h h hf hf hf" "o o o o o d d d" "s a a a c d d d" "s a a a c d d d";
+	 align-items: start;
+}
+ a, a:hover, a:focus, a:active {
+	 text-decoration: none;
+	 color: inherit;
+}
+ * {
+	 font-family: 'Roboto';
+	 -webkit-transition: all 0.008s ease;
+	 -moz-transition: all 0.008s ease;
+	 -ms-transition: all 0.008s ease;
+	 -o-transition: all 0.008s ease;
+}
+ h1, h2, h3, h4, h5, h6 {
+	 font-family: 'Roboto Slab';
+}
+ p {
+	 font-size: large;
+	 font-family: 'Open Sans';
+	 line-height: 1.6;
+}
+ .serif {
+	 font-family: 'Roboto Slab';
+}
+ .clean {
+	 font-family: 'Open Sans';
+}
+ .button, .button_main, .button_secondary, .button_ghost, .button_ghost_dark {
+	 font-family: 'Roboto';
+	 font-weight: 500;
+	 letter-spacing: 1.25px;
+	 padding-top: 20px;
+	 padding-bottom: 20px;
+	 padding-right: 40px;
+	 padding-left: 40px;
+	 border: transparent;
+	 border-radius: 4px;
+	 background-color: transparent;
+}
+ .button:focus, .button_main:focus, .button_secondary:focus, .button_ghost:focus, .button_ghost_dark:focus {
+	 outline: 0;
+}
+ .button:hover, .button_main:hover, .button_secondary:hover, .button_ghost:hover, .button_ghost_dark:hover {
+	 cursor: pointer;
+}
+ .button_main {
+	 font-size: large;
+	 background-color: #212121;
+	 color: whitesmoke;
+	 overflow: visible;
+}
+ .button_main:hover {
+	 background-color: #212121 e3;
+	 color: whitesmoke;
+}
+ .button_main:active {
+	 background-color: #212121;
+}
+ .button_secondary {
+	 border: 2px solid #212121;
+	 font-size: medium;
+	 overflow: visible;
+	 padding-top: 10px;
+	 padding-bottom: 10px;
+	 padding-right: 20px;
+	 padding-left: 20px;
+}
+ .button_secondary:hover {
+	 border: 2px solid #212121;
+	 background-color: rgba(0, 0, 0, 0.05);
+}
+ .button_secondary:active {
+	 background-color: transparent;
+}
+ .button_ghost {
+	 font-size: medium;
+	 padding: 10px;
+}
+ .button_ghost:hover {
+	 background-color: rgba(0, 0, 0, 0.05);
+}
+ .button_ghost:active {
+	 background-color: transparent;
+}
+ .button_ghost_dark {
+	 font-size: medium;
+	 padding: 10px;
+	 color: #f1f1f1;
+}
+ .button_ghost_dark:hover {
+	 background-color: rgba(255, 255, 255, 0.114);
+}
+ .button_ghost_dark:active {
+	 background-color: transparent;
+}
+ .text_input {
+	 width: 20vw;
+	 font-size: medium;
+	 font-family: 'Roboto', sans-serif;
+	 background: transparent;
+	 border: none;
+	 border-bottom: 2px solid #212121;
+	 padding: 2px 5px;
+}
+ .text_input:focus {
+	 border-bottom: 2px solid #212121 e3;
+}
+ .text_input:hover {
+	 border-bottom: 2px solid #212121 e3;
+}
+ div.field {
+	 padding-top: 40px;
+}
+ div.field .text_input {
+	 font-size: medium;
+	 font-family: 'Roboto', sans-serif;
+	 background: transparent;
+	 border: none;
+	 border-bottom: 2px solid #212121;
+	 padding: 2px 5px;
+}
+ div.field .text_input:focus {
+	 border-bottom: 2px solid #212121 e3;
+}
+ div.field .text_input:hover {
+	 border-bottom: 2px solid #212121 e3;
+}
+ .absolute-center {
+	 text-align: center;
+	 border-radius: 4px;
+	 padding: 80px;
+	 position: absolute;
+	 left: 0;
+	 right: 0;
+	 margin-left: auto;
+	 margin-right: auto;
+}
+ .logo {
+	 grid-area: hl;
+	 padding-left: 20px;
+	 float: left;
+}
+ .try_it_now {
+	 grid-area: a;
+}
+ .header {
+	 grid-area: hf;
+	 float: right;
+	 padding: 40px;
+	 text-align: right;
+}
+ .header ::after {
+	 position: absolute;
+}
+ #dasher {
+	 padding: 20px;
+	 display: grid;
+	 grid-template-columns: repeat(8, 1fr);
+	 grid-gap: 10px;
+	 grid-auto-rows: 100px;
+	 grid-template-areas: "hl hl h h h hf hf hf" "s o o o c c d d" "s o o o c c d d" "s a a a c c d d" "- - - - - - - -" "- - - - - - - -" "lb m m m m m m rb";
+	 align-items: start;
+}
+ #dasher .dash_it_on {
+	 grid-area: o;
+}
+ #dasher .linkin_park {
+	 grid-area: m;
+}
+ #dasher #trip {
+	 padding: 20px;
+	 width: 1vw;
+	 grid-area: d;
+}
+ #clapper p, #clapper mark {
+	 font-size: large;
+	 font-family: 'Open Sans';
+	 line-height: 1.8;
+}
+ #clapper .framer {
+	 display: grid;
+	 position: relative;
+	 color: #1b1b1b;
+}
+ #clapper .framer #reader, #clapper .framer #mapper {
+	 margin-left: 20vw;
+	 position: absolute;
+	 width: 50vw;
+	 line-height: 2;
+	 padding: 4vw;
+}
+ #clapper .framer #mapper {
+	 z-index: -69;
+	 height: 1500px;
+	 mix-blend-mode: darken;
+}
+ #clapper .layer_underneath_your_screen {
+	 z-index: 100;
+	 width: 20vw;
+	 height: 100vh;
+	 position: fixed;
+	 display: grid;
+	 grid-template-columns: repeat(8, 1fr);
+	 grid-gap: 10px;
+	 grid-auto-rows: 20vh;
+	 grid-template-areas: "o h h h h h h d" "t mr p p p p ml i" "t mr p p p p ml i" "od hd hd hd hd hd hd dd";
+	 align-items: start;
+}
+ #clapper .layer_underneath_your_screen .not_the_toolbar_you_deserve_but_the_toolbar_you_need {
+	 border-radius: 4px;
+	 display: grid;
+	 background-color: #212121;
+	 color: white;
+	 padding: 1vw;
+	 grid-area: t;
+	 height: 30vh;
+	 width: 3vw;
+	 text-align: center;
+	 font-weight: 500;
+	 font-size: 0.8vw;
+}
+ #clapper {
+	 text-align: center;
+}
+ #clapper p, #clapper mark {
+	 font-size: large;
+	 font-family: 'Open Sans';
+	 line-height: 1.8;
+}
+ #clapper .reader_is_not_a_wrapper {
+	 color: #1b1b1b;
+	 padding: 4vw;
+	 text-align: center;
+	 display: inline-block;
+	 width: 60vw;
+}
+ #clapper .reader_is_not_a_wrapper #reader, #clapper .reader_is_not_a_wrapper .framer #mapper, #clapper .framer .reader_is_not_a_wrapper #mapper {
+	 text-align: left;
+	 line-height: 2;
+	 padding: 4vw;
+}
+ #clapper .layer_underneath_your_screen {
+	 z-index: 100;
+	 width: 20vw;
+	 height: 100vh;
+	 position: fixed;
+	 display: grid;
+	 grid-template-columns: repeat(8, 1fr);
+	 grid-gap: 10px;
+	 grid-auto-rows: 20vh;
+	 grid-template-areas: "o h h h h h h d" "t mr p p p p ml i" "t mr p p p p ml i" "od hd hd hd hd hd hd dd";
+	 align-items: start;
+}
+ #clapper .layer_underneath_your_screen .not_the_toolbar_you_deserve_but_the_toolbar_you_need {
+	 border-radius: 4px;
+	 display: grid;
+	 background-color: #212121;
+	 color: white;
+	 padding: 1vw;
+	 grid-area: t;
+	 height: 30vh;
+	 width: 3vw;
+	 text-align: center;
+	 font-weight: 500;
+	 font-size: 0.8vw;
+}
+ .text_input {
+	 width: 40vw !important;
+}
+ 

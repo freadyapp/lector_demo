@@ -97,9 +97,8 @@ let marker = null
 let toolbar = null
 
 function setUpDoc() {
-  word_divs = document.getElementsByTagName("wt")
-  print(word_divs[5])
-  line_divs = document.getElementsByTagName("line")
+
+  let line_divs = document.getElementsByTagName("line")
   setUpPointer()
   setUpToolbar()
   setUpLines(line_divs, lines)
