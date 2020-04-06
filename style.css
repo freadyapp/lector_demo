@@ -16,10 +16,10 @@ body {
 }
  * {
 	 font-family: 'Roboto';
-	 -webkit-transition: all 0.008s ease;
-	 -moz-transition: all 0.008s ease;
-	 -ms-transition: all 0.008s ease;
-	 -o-transition: all 0.008s ease;
+	 -webkit-transition: all 0.045s ease;
+	 -moz-transition: all 0.045s ease;
+	 -ms-transition: all 0.045s ease;
+	 -o-transition: all 0.045s ease;
 }
  h1, h2, h3, h4, h5, h6 {
 	 font-family: 'Roboto Slab';

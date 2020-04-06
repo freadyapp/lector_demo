@@ -2,13 +2,36 @@
 
 const pointer_css_dictionary = { 
   'position': 'absolute', 
-  'outline': 'solid 1px red', 
-  'background-color': 'transparent', 
+  'outline': 'solid 0px red', 
+  'background-color': '#FFDC00', 
   'width': '10vw', 
   'height': '20px', 
   'z-index': '0', 
-  'opacity': '100%' 
+  'opacity': '100%' ,
+  'mix-blend-mode': 'darken'
 }
+
+// const pointer_css_dictionary = {
+//   'position': 'absolute',
+//   'outline': 'solid 0px red',
+//   'background-color': '#FF4136',
+//   'width': '10vw',
+//   'height': '20px',
+//   'z-index': '0',
+//   'opacity': '100%',
+//   'mix-blend-mode': 'darken'
+// }
+
+// const pointer_css_dictionary = {
+//   'position': 'absolute',
+//   'outline': 'solid 0px red',
+//   'background-color': '#FF851B',
+//   'width': '10vw',
+//   'height': '20px',
+//   'z-index': '0',
+//   'opacity': '100%',
+//   'mix-blend-mode': 'darken'
+// }
 
 
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'

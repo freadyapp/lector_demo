@@ -15,7 +15,6 @@ with open('view_files/body_downer.txt', 'r') as file:
 
 compiled_html = "<!DOCTYPE html> <html>" + header + body_upper + api_res + body_downer + "</html>"
 
-
 file = open("index.html", "w")
 file.write(compiled_html)
 file.close()
