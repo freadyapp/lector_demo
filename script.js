@@ -1,13 +1,13 @@
 // constants
 
-const pointer_css_dictionary = { 
-  'position': 'absolute', 
-  'outline': 'solid 0px red', 
-  'background-color': '#FFDC00', 
-  'width': '10vw', 
-  'height': '20px', 
-  'z-index': '10', 
-  'opacity': '100%' ,
+const pointer_css_dictionary = {
+  'position': 'absolute',
+  'outline': 'solid 0px red',
+  'background-color': '#FFDC00',
+  'width': '10vw',
+  'height': '20px',
+  'z-index': '10',
+  'opacity': '100%',
   'mix-blend-mode': 'darken'
 }
 
@@ -56,13 +56,13 @@ class Toolbar {
     this.auto = false
   }
 
-  set wpm(n){
+  set wpm(n) {
     this.wpm_val = n
     $(this.wpm_div).text(this.wpm_val)
     frame_interval_ms = wpm2ms(this.wpm)
   }
 
-  get wpm(){
+  get wpm() {
     return this.wpm_val
   }
 
@@ -76,8 +76,8 @@ class Marker {
     this.color_hex = ''
     this.color = 0
   }
-  set color(code){
-    this.color_code = code%colors.length
+  set color(code) {
+    this.color_code = code % colors.length
     this.color_hex = colors[this.color_code]
   }
   mark(that) {
@@ -85,7 +85,6 @@ class Marker {
     let w = (that.width) / 4
     let destination = $(that.dom).offset();
     // destination['top'] -= 0
-    print(destination)
     $(this.dom).offset(destination);
     $(this.dom).css({
       'width': w,
@@ -108,12 +107,12 @@ class Marker {
       'top': $(these[0].dom).offset().top,
       'left': $(these[0].dom).offset().left
     }
-    
+
     $(this.dom).offset(des);
     $(this.dom).css({
       'width': w,
-      'height': h/count,
-      'background-color' : this.color_hex
+      'height': h / count,
+      'background-color': this.color_hex
     });
   }
 }
@@ -127,7 +126,7 @@ class MapElement {
   }
 }
 
-class Line extends MapElement{
+class Line extends MapElement {
   constructor(lt, p) {
     super(lt, p)
     this.words = []
@@ -143,7 +142,7 @@ class Line extends MapElement{
   }
 }
 
-class Word extends MapElement{
+class Word extends MapElement {
   constructor(wt, p, i) {
     super(wt, p)
     this.content = wt.textContent
@@ -176,14 +175,14 @@ function setUpPointer() {
 }
 
 function setUpToolbar() {
-/*
-<div class="not_the_toolbar_you_deserve_but_the_toolbar_you_need">
-<div class="reading_sped">reading speed</div><br>
-<div id='wpm_plus' class="button_ghost_dark">*</div><br>
-<div id='wpm' class="button_ghost_dark">4</div><br>
-<div id='wpm_minus' class="button_ghost_dark">*</div><br>
-</div>
-*/
+  /*
+  <div class="not_the_toolbar_you_deserve_but_the_toolbar_you_need">
+  <div class="reading_sped">reading speed</div><br>
+  <div id='wpm_plus' class="button_ghost_dark">*</div><br>
+  <div id='wpm' class="button_ghost_dark">4</div><br>
+  <div id='wpm_minus' class="button_ghost_dark">*</div><br>
+  </div>
+  */
 
   let toolbar_div = document.getElementsByClassName(toolbar_div_class_name)
   let wpm_div = document.getElementById('wpm')
@@ -204,7 +203,7 @@ setUpDoc();
 // key listeners
 var keys = {};
 window.onkeyup = function (e) { keys[e.keyCode] = false; keyRelease(e.keyCode) }
-window.onkeydown = function (e) { e.preventDefault(); keys[e.keyCode] = true; keyPress(e.keyCode) }
+window.onkeydown = function (e) { if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) e.preventDefault(); keys[e.keyCode] = true; keyPress(e.keyCode) }
 
 // initialising the locked loop
 
@@ -242,32 +241,30 @@ function tiktok() {
   current_line = current_word.parent
   let run = toolbar.auto || moving
 
-  if (instance<instances)
-  {
-    markedWords = slice_around( current_line.words, current_word.index, toolbar.wchunk)
+  if (instance < instances) {
+    markedWords = slice_around(current_line.words, current_word.index, toolbar.wchunk)
     marker.mark2(markedWords)
-    instance += 1*run
+    instance += 1 * run
   }
-  else
-  {
+  else {
     instance = 0
-    cursor += wstep*dir
+    cursor += wstep * dir
     instances = all_words[cursor].time
   }
-  
+
 }
 
 
-function tiktokKeysHelper(){
-  
+function tiktokKeysHelper() {
+
   right = keys[39]
   left = keys[37]
-      
-  if (right || left){
+
+  if (right || left) {
     dir = 1
     if (left) dir = -1
     moving = true
-  }else{
+  } else {
     moving = false
     dir = 1
   }
@@ -294,7 +291,7 @@ function keyPress(key) {
       break;
     case 67:
       //c
-      color_cursor+=1
+      color_cursor += 1
       marker.color = color_cursor
       break;
     case 187:
@@ -319,7 +316,7 @@ function keyPress(key) {
 }
 
 
-function keyRelease(key){
+function keyRelease(key) {
 
   switch (key) {
     case 37:
@@ -363,16 +360,15 @@ jQuery.expr[':'].space = function (elem) {
   return !$elem.children().length && !$elem.text().match(/\S/);
 }
 
-function wpm2ms(wpm){
+function wpm2ms(wpm) {
   const average_letters_in_word = 5 // actually 4.79
-  return 1000/((wpm / 60) * average_letters_in_word) // big brain meth
+  return 1000 / ((wpm / 60) * average_letters_in_word) // big brain meth
 }
 
-function slice_around(ary, i, l){
-  let start = i - Math.round((l-1)/2)
+function slice_around(ary, i, l) {
+  let start = i - Math.round((l - 1) / 2)
   let end = i + Math.round((l - 1) / 2)
-  print(end)
-  return ary.slice(cap(start, 0, ary.length - 1), cap(end, 0, ary.length - 1)+1)
+  return ary.slice(cap(start, 0, ary.length - 1), cap(end, 0, ary.length - 1) + 1)
 }
 
 function isEven(n) {
@@ -383,12 +379,12 @@ function cap(num, min, max) {
   return num <= min ? min : num >= max ? max : num;
 }
 
-function lines2words(down=true){
-  cursor = setCapped(cursor, down ? (current_line.words.length-current_word.index) : -current_word.index-1, 0 , Infinity) 
-  if (!down) cursor = setCapped(cursor, -all_words[cursor].parent.words.length+1, 0, Infinity)
+function lines2words(down = true) {
+  cursor = setCapped(cursor, down ? (current_line.words.length - current_word.index) : -current_word.index - 1, 0, Infinity)
+  if (!down) cursor = setCapped(cursor, -all_words[cursor].parent.words.length + 1, 0, Infinity)
 }
 
-function setCapped(vari, val, final_min, final_max){
+function setCapped(vari, val, final_min, final_max) {
   target_val = vari + val
   return cap(target_val, final_min, final_max)
 }
