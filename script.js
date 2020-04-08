@@ -35,6 +35,7 @@ const pointer_css_dictionary = {
 
 
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
+const colors = ['#FF851B', '#FF4136', '#FFDC00']
 
 let initial_wpm = 420
 let initial_wchunk = 1
@@ -51,6 +52,7 @@ class Toolbar {
     this.wpm_val = initial_wpm
     this.wpm = this.wpm_val
     this.wchunk = initial_wchunk
+    this.color_index = 0
     this.auto = false
   }
 
@@ -70,8 +72,14 @@ class Marker {
 
   constructor(div) {
     this.dom = div
+    this.color_code = 0
+    this.color_hex = ''
+    this.color = 0
   }
-
+  set color(code){
+    this.color_code = code%colors.length
+    this.color_hex = colors[this.color_code]
+  }
   mark(that) {
     let h = (that.height) / 4
     let w = (that.width) / 4
@@ -86,7 +94,6 @@ class Marker {
   }
 
   mark2(these) {
-
     let h = 0
     let w = 0
     let count = 0
@@ -105,7 +112,8 @@ class Marker {
     $(this.dom).offset(des);
     $(this.dom).css({
       'width': w,
-      'height': h/count
+      'height': h/count,
+      'background-color' : this.color_hex
     });
   }
 }
@@ -225,6 +233,8 @@ let dir = 1
 let moving = false
 let current_word = null
 let current_line = null
+
+let color_cursor = 0
 //TODO make this a classs
 
 function tiktok() {
@@ -281,7 +291,11 @@ function keyPress(key) {
     case 40:
       //down
       lines2words(true)
-      if (!moving) cursor++
+      break;
+    case 67:
+      //c
+      color_cursor+=1
+      marker.color = color_cursor
       break;
     case 187:
       //= (intepret it as +)
@@ -370,7 +384,7 @@ function cap(num, min, max) {
 }
 
 function lines2words(down=true){
-  cursor = setCapped(cursor, down ? (current_line.words.length-1-current_word.index) : -current_word.index-1, 0 , Infinity) 
+  cursor = setCapped(cursor, down ? (current_line.words.length-current_word.index) : -current_word.index-1, 0 , Infinity) 
   if (!down) cursor = setCapped(cursor, -all_words[cursor].parent.words.length+1, 0, Infinity)
 }
 
