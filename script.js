@@ -6,7 +6,7 @@ const pointer_css_dictionary = {
   'background-color': '#FFDC00', 
   'width': '10vw', 
   'height': '20px', 
-  'z-index': '0', 
+  'z-index': '10', 
   'opacity': '100%' ,
   'mix-blend-mode': 'darken'
 }
@@ -74,10 +74,35 @@ class Marker {
     let w = (that.width) / 4
     let destination = $(that.dom).offset();
     // destination['top'] -= 0
+    print(destination)
     $(this.dom).offset(destination);
     $(this.dom).css({
       'width': w,
       'height': h
+    });
+  }
+
+  mark2(these) {
+
+    let h = 0
+    let w = 0
+    let count = 0
+
+    these.forEach(that => {
+      count += 1
+      h += (that.height) / 4
+      w += (that.width) / 4
+    })
+
+    let des = {
+      'top': $(these[0].dom).offset().top,
+      'left': $(these[0].dom).offset().left
+    }
+    
+    $(this.dom).offset(des);
+    $(this.dom).css({
+      'width': w,
+      'height': h/count
     });
   }
 }
@@ -96,21 +121,23 @@ class Line extends MapElement{
     super(lt, p)
     this.words = []
     this.time = 0
-    looper(lt.getElementsByTagName('wt'), (wt) => {
-      let w = new Word(wt, this)
+    let word_divs = lt.getElementsByTagName('wt')
+    for (var i = 0; i < word_divs.length; i++) {
+      let w = new Word(word_divs[i], this, i)
       this.words.push(w)
       all_words.push(w)
       // TODO this.time make a get mthd
       this.time += w.time
-    })
+    }
   }
 }
 
 class Word extends MapElement{
-  constructor(wt, p) {
+  constructor(wt, p, i) {
     super(wt, p)
     this.content = wt.textContent
     this.time = parseInt(wt.getAttribute('l'))
+    this.index = i
   }
 }
 
@@ -175,8 +202,8 @@ setTimeout(step, frame_interval_ms);
 function step() {
   let dt = Date.now() - expected; // the drift (positive for overshooting)
   if (dt > frame_interval_ms) {
-    // TODO refresh the page or reset the dt
-    // alert('whats up')
+    expected = Date.now() + frame_interval_ms;
+    setTimeout(step, frame_interval_ms);
   }
   tiktok();
   tiktokKeysHelper();
@@ -187,7 +214,7 @@ function step() {
 
 // LOCKED LOOP
 
-let cursor = -1
+let cursor = 0
 let instances = 0
 let instance = 0
 let wstep = 1
@@ -196,11 +223,13 @@ let moving = false
 
 function tiktok() {
   let current_word = all_words[cursor]
+  let current_line = current_word.parent
   let run = toolbar.auto || moving
 
   if (instance<instances)
   {
-    marker.mark(current_word)
+    markedWords = slice_around( current_line.words, current_word.index, 3)
+    marker.mark2(markedWords)
     instance += 1*run
   }
   else
@@ -299,4 +328,19 @@ jQuery.expr[':'].space = function (elem) {
 function wpm2ms(wpm){
   const average_letters_in_word = 5 // actually 4.79
   return 1000/((wpm / 60) * average_letters_in_word) // big brain meth
+}
+
+function slice_around(ary, i, l){
+  let start = i - Math.round((l-1)/2)
+  let end = i + Math.round((l - 1) / 2)
+  print(end)
+  return ary.slice(cap(start, 0, ary.length - 1), cap(end, 0, ary.length - 1)+1)
+}
+
+function isEven(n) {
+  return n % 2 == 0;
+}
+
+function cap(num, min, max) {
+  return num <= min ? min : num >= max ? max : num;
 }
