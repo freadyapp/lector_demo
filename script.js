@@ -36,7 +36,9 @@ const pointer_css_dictionary = {
 
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
 
-let initial_wpm = 250
+let initial_wpm = 420
+let initial_wchunk = 1
+
 let frame_interval_ms = wpm2ms(initial_wpm)
 
 
@@ -46,8 +48,9 @@ class Toolbar {
   constructor(div, wpm_div) {
     this.dom = div
     this.wpm_div = wpm_div
-    this.wpm_val = 250
+    this.wpm_val = initial_wpm
     this.wpm = this.wpm_val
+    this.wchunk = initial_wchunk
     this.auto = false
   }
 
@@ -193,7 +196,7 @@ setUpDoc();
 // key listeners
 var keys = {};
 window.onkeyup = function (e) { keys[e.keyCode] = false; keyRelease(e.keyCode) }
-window.onkeydown = function (e) { keys[e.keyCode] = true; keyPress(e.keyCode) }
+window.onkeydown = function (e) { e.preventDefault(); keys[e.keyCode] = true; keyPress(e.keyCode) }
 
 // initialising the locked loop
 
@@ -220,15 +223,18 @@ let instance = 0
 let wstep = 1
 let dir = 1
 let moving = false
+let current_word = null
+let current_line = null
+//TODO make this a classs
 
 function tiktok() {
-  let current_word = all_words[cursor]
-  let current_line = current_word.parent
+  current_word = all_words[cursor]
+  current_line = current_word.parent
   let run = toolbar.auto || moving
 
   if (instance<instances)
   {
-    markedWords = slice_around( current_line.words, current_word.index, 3)
+    markedWords = slice_around( current_line.words, current_word.index, toolbar.wchunk)
     marker.mark2(markedWords)
     instance += 1*run
   }
@@ -253,6 +259,7 @@ function tiktokKeysHelper(){
     moving = true
   }else{
     moving = false
+    dir = 1
   }
 }
 
@@ -267,13 +274,30 @@ function keyPress(key) {
       //right
       if (!moving) cursor++
       break;
+    case 38:
+      //up
+      lines2words(false)
+      break;
+    case 40:
+      //down
+      lines2words(true)
+      if (!moving) cursor++
+      break;
     case 187:
       //= (intepret it as +)
-      toolbar.wpm += 10
+      toolbar.wpm = setCapped(toolbar.wpm, +10, 50, 990)
       break;
     case 189:
       //- 
-      toolbar.wpm -= 10
+      toolbar.wpm = setCapped(toolbar.wpm, -10, 50, 990)
+      break;
+    case 190:
+      //= (intepret it as +)
+      toolbar.wchunk = setCapped(toolbar.wchunk, +1, 1, 5)
+      break;
+    case 188:
+      //- 
+      toolbar.wchunk = setCapped(toolbar.wchunk, -1, 1, 5)
       break;
     default:
     // code block
@@ -343,4 +367,14 @@ function isEven(n) {
 
 function cap(num, min, max) {
   return num <= min ? min : num >= max ? max : num;
+}
+
+function lines2words(down=true){
+  cursor = setCapped(cursor, down ? (current_line.words.length-1-current_word.index) : -current_word.index-1, 0 , Infinity) 
+  if (!down) cursor = setCapped(cursor, -all_words[cursor].parent.words.length+1, 0, Infinity)
+}
+
+function setCapped(vari, val, final_min, final_max){
+  target_val = vari + val
+  return cap(target_val, final_min, final_max)
 }
