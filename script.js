@@ -35,7 +35,7 @@ const pointer_css_dictionary = {
 
 
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
-const colors = ['#FF851B', '#FF4136', '#FFDC00']
+const colors = ['#7FDBFF', '#01FF70', '#F012BE', '#DDDDDD', '#FF851B', '#FF4136', '#FFDC00']
 
 let initial_wpm = 420
 let initial_wchunk = 1
@@ -388,3 +388,4 @@ function setCapped(vari, val, final_min, final_max) {
   target_val = vari + val
   return cap(target_val, final_min, final_max)
 }
+
