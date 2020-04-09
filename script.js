@@ -11,35 +11,10 @@ const pointer_css_dictionary = {
   'mix-blend-mode': 'darken'
 }
 
-// const pointer_css_dictionary = {
-//   'position': 'absolute',
-//   'outline': 'solid 0px red',
-//   'background-color': '#FF4136',
-//   'width': '10vw',
-//   'height': '20px',
-//   'z-index': '0',
-//   'opacity': '100%',
-//   'mix-blend-mode': 'darken'
-// }
-
-// const pointer_css_dictionary = {
-//   'position': 'absolute',
-//   'outline': 'solid 0px red',
-//   'background-color': '#FF851B',
-//   'width': '10vw',
-//   'height': '20px',
-//   'z-index': '0',
-//   'opacity': '100%',
-//   'mix-blend-mode': 'darken'
-// }
-
-
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
-const colors = ['#7FDBFF', '#01FF70', '#F012BE', '#DDDDDD', '#FF851B', '#FF4136', '#FFDC00']
 
 let initial_wpm = 420
 let initial_wchunk = 1
-
 let frame_interval_ms = wpm2ms(initial_wpm)
 
 
@@ -75,21 +50,46 @@ class Marker {
     this.color_code = 0
     this.color_hex = ''
     this.color = 0
+    this.mode_code = 0
+    this.mode = 0
   }
+
+  build_mode(backColorHex, bordersBottomString='0px', bordersLeftString='0px', opacity='100%' ){
+    return {
+      'background-color': backColorHex,
+      'border-bottom': bordersBottomString,
+      'border-left': bordersLeftString,
+
+      'opacity' : opacity
+    }
+  }
+
+  get modes(){
+    return ([
+      this.build_mode(this.color_hex),
+      this.build_mode('transparent', '2px solid' + this.color_hex),
+      this.build_mode('transparent', '5px solid' + this.color_hex),
+      this.build_mode('transparent', '0px solid', '5px solid'+this.color_hex),
+      this.build_mode(this.color_hex, '0px', '0px', '20%')
+    ])
+  }
+
+  get mode_css(){
+    this.mode = this.mode_code
+    return this.modes[this.mode_code]
+  }
+
+  get colors(){
+    return ['#7FDBFF', '#01FF70', '#F012BE', '#DDDDDD', '#FF851B', '#FF4136', '#FFDC00']
+  }
+
   set color(code) {
-    this.color_code = code % colors.length
-    this.color_hex = colors[this.color_code]
+    this.color_code = code % this.colors.length
+    this.color_hex = this.colors[this.color_code]
   }
-  mark(that) {
-    let h = (that.height) / 4
-    let w = (that.width) / 4
-    let destination = $(that.dom).offset();
-    // destination['top'] -= 0
-    $(this.dom).offset(destination);
-    $(this.dom).css({
-      'width': w,
-      'height': h
-    });
+
+  set mode(code){
+    this.mode_code = code % this.modes.length
   }
 
   mark2(these) {
@@ -111,9 +111,9 @@ class Marker {
     $(this.dom).offset(des);
     $(this.dom).css({
       'width': w,
-      'height': h / count,
-      'background-color': this.color_hex
+      'height': h / count
     });
+    $(this.dom).css(this.mode_css)
   }
 }
 
@@ -234,6 +234,8 @@ let current_word = null
 let current_line = null
 
 let color_cursor = 0
+let mode_cursor = 0
+
 //TODO make this a classs
 
 function tiktok() {
@@ -293,6 +295,11 @@ function keyPress(key) {
       //c
       color_cursor += 1
       marker.color = color_cursor
+      break;
+    case 77:
+      //m
+      mode_cursor += 1
+      marker.mode = mode_cursor
       break;
     case 187:
       //= (intepret it as +)
