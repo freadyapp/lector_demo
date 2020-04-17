@@ -52,6 +52,8 @@ class Marker {
     this.color = 0
     this.mode_code = 0
     this.mode = 0
+
+    this.last_marked = null
   }
 
   build_mode(backColorHex, bordersBottomString='0px', bordersLeftString='0px', opacity='100%' ){
@@ -93,35 +95,47 @@ class Marker {
   }
 
   mark2(these) {
-    let h = 0
-    let w = 0
-    let count = 0
-    these.forEach(that => {
-      count += 1
-      h += (that.height)
-      w += (that.width)
-    })
+    if (marker_force_resize || !arraysEqual(these, this.last_marked)){
+      print('marking')
+      let h = 0
+      let w = 0
 
-    let des = {
-      'top': $(these[0].dom).offset().top,
-      'left': $(these[0].dom).offset().left
+      these.forEach(that => {
+        w += (that.width) + 4
+      })
+
+      $(this.dom).offset({
+        'top': these[0].parent.top - these[0].parent.height / 4,
+        'left': these[0].left - 2
+      });
+      $(this.dom).css({
+        'width': `${w}px`,
+        'height': these[0].parent.height*2
+      });
+      this.last_marked = these
+      marker_force_resize = false
     }
-
-    $(this.dom).offset(des);
-    $(this.dom).css({
-      'width': `${w}px`,
-      'height': h / count
-    });
+    
     $(this.dom).css(this.mode_css)
   }
 }
 
 class MapElement {
-  constructor(div, p) {
-    this.width = div.getBoundingClientRect().width
-    this.height = div.getBoundingClientRect().height
-    this.dom = div
+  constructor(el, p) {
+    this.dom = el
     this.parent = p
+  }
+  get width(){
+    return this.dom.getBoundingClientRect().width
+  }
+  get height() {
+    return this.dom.getBoundingClientRect().height
+  }
+  get left() {
+    return this.dom.getBoundingClientRect().left
+  }
+  get top() {
+    return this.dom.getBoundingClientRect().top
   }
 }
 
@@ -161,8 +175,6 @@ class Word extends MapElement {
 
   }
 
-  
-
   get public_index() {
     return this.parent.findex+this.local_index
   }
@@ -174,9 +186,11 @@ function word_click() {
 
 function word_over() {
   this.style.backgroundColor = 'lightgray'
+  this.style.padding = '10px'
 }
 function word_out(){
   this.style.backgroundColor = 'transparent'
+  this.style.padding = '0px'
 }
 
 
@@ -198,19 +212,11 @@ function setUpDoc() {
 function setUpPointer() {
   let pointer_div = document.createElement('div')
   $(pointer_div).css(pointer_css_dictionary);
-  $('#reader').append(pointer_div) // TODO fix pointer's initial placement
+  $('#reader').append(pointer_div)
   marker = new Marker(pointer_div)
 }
 
 function setUpToolbar() {
-  /*
-  <div class="not_the_toolbar_you_deserve_but_the_toolbar_you_need">
-  <div class="reading_sped">reading speed</div><br>
-  <div id='wpm_plus' class="button_ghost_dark">*</div><br>
-  <div id='wpm' class="button_ghost_dark">4</div><br>
-  <div id='wpm_minus' class="button_ghost_dark">*</div><br>
-  </div>
-  */
 
   let toolbar_div = document.getElementsByClassName(toolbar_div_class_name)
   let wpm_div = document.getElementById('wpm')
@@ -221,9 +227,7 @@ function setUpToolbar() {
 }
 
 function setUpLines(lines, lines_array) {
-  // looper(lines_div, (line) => {
-  //   lines_array.push(new Line(line))
-  // })
+
   findex = 0
   for (var i = 0; i < lines.length; i++) {
     let l = new Line(lines[i], document.body, findex)
@@ -235,9 +239,11 @@ function setUpLines(lines, lines_array) {
 setUpDoc();
 
 // key listeners
-var keys = {};
+let keys = {};
+let marker_force_resize = false
 window.onkeyup = function (e) { keys[e.keyCode] = false; keyRelease(e.keyCode) }
 window.onkeydown = function (e) { if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) e.preventDefault(); keys[e.keyCode] = true; keyPress(e.keyCode) }
+window.onresize = function () { marker_force_resize=true };
 
 // initialising the locked loop
 
@@ -345,11 +351,11 @@ function keyPress(key) {
       toolbar.wpm = setCapped(toolbar.wpm, -10, 50, 990)
       break;
     case 190:
-      //= (intepret it as +)
+      //> (intepret it as +)
       toolbar.wchunk = setCapped(toolbar.wchunk, +1, 1, 5)
       break;
     case 188:
-      //- 
+      //<
       toolbar.wchunk = setCapped(toolbar.wchunk, -1, 1, 5)
       break;
     default:
@@ -385,25 +391,13 @@ function print(val) {
   console.log(val)
 }
 
-function looper(elements, func) {
-  // TODO deprecate this
-  for (let i = 0; i < elements.length; i++) {
-    func(elements[i])
-  }
-}
-
-function get_kids(element) {
-  // TODO deprecate this
-  return element.childNodes
-}
-
 jQuery.expr[':'].space = function (elem) {
   let $elem = jQuery(elem);
   return !$elem.children().length && !$elem.text().match(/\S/);
 }
 
 function wpm2ms(wpm) {
-  const average_letters_in_word = 5 // actually 4.79
+  const average_letters_in_word = 4.79 // actually 4.79
   return 1000 / ((wpm / 60) * average_letters_in_word) // big brain meth
 }
 
@@ -433,4 +427,15 @@ function setCapped(vari, val, final_min, final_max) {
 
 function cappCursor(){
   cursor = cursor > 0 ? cursor < max_cursor ? cursor : max_cursor : 0
+}
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length != b.length) return false;
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 }
