@@ -4,7 +4,7 @@ const pointer_css_dictionary = {
   'position': 'absolute',
   'outline': 'solid 0px red',
   'background-color': '#FFDC00',
-  'width': '10vw',
+  'width': '10px',
   'height': '20px',
   'z-index': '10',
   'opacity': '100%',
@@ -96,11 +96,10 @@ class Marker {
     let h = 0
     let w = 0
     let count = 0
-
     these.forEach(that => {
       count += 1
-      h += (that.height) / 4
-      w += (that.width) / 4
+      h += (that.height)
+      w += (that.width)
     })
 
     let des = {
@@ -110,7 +109,7 @@ class Marker {
 
     $(this.dom).offset(des);
     $(this.dom).css({
-      'width': w,
+      'width': `${w}px`,
       'height': h / count
     });
     $(this.dom).css(this.mode_css)
@@ -119,36 +118,49 @@ class Marker {
 
 class MapElement {
   constructor(div, p) {
-    this.width = div.offsetWidth
-    this.height = div.offsetHeight
+    this.width = div.getBoundingClientRect().width
+    this.height = div.getBoundingClientRect().height
     this.dom = div
     this.parent = p
   }
 }
 
 class Line extends MapElement {
-  constructor(lt, p) {
+  constructor(lt, p, findex) {
     super(lt, p)
     this.words = []
     this.time = 0
+    this.findex = findex
     let word_divs = lt.getElementsByTagName('wt')
     for (var i = 0; i < word_divs.length; i++) {
       let w = new Word(word_divs[i], this, i)
       this.words.push(w)
       all_words.push(w)
-      // TODO this.time make a get mthd
       this.time += w.time
     }
   }
 }
 
 class Word extends MapElement {
-  constructor(wt, p, i) {
+  constructor(wt, p, li, pi) {
     super(wt, p)
     this.content = wt.textContent
     this.time = parseInt(wt.getAttribute('l'))
-    this.index = i
+    this.local_index = li
+    this.dom.parent = this
+    this.dom.addEventListener("click", word_clicked);
   }
+
+  
+
+  get public_index() {
+    return this.parent.findex+this.local_index
+  }
+}
+
+function word_clicked() {
+  print(this.parent.public_index)
+  cursor = this.parent.public_index
 }
 
 
@@ -192,10 +204,16 @@ function setUpToolbar() {
   toolbar = new Toolbar(toolbar_div, wpm_div)
 }
 
-function setUpLines(lines_div, lines_array) {
-  looper(lines_div, (line) => {
-    lines_array.push(new Line(line))
-  })
+function setUpLines(lines, lines_array) {
+  // looper(lines_div, (line) => {
+  //   lines_array.push(new Line(line))
+  // })
+  findex = 0
+  for (var i = 0; i < lines.length; i++) {
+    let l = new Line(lines[i], document.body, findex)
+    findex+=l.words.length
+    lines_array.push(l)
+  }
 }
 
 setUpDoc();
@@ -225,6 +243,7 @@ function step() {
 // LOCKED LOOP
 
 let cursor = 0
+let max_cursor = all_words.length-1
 let instances = 0
 let instance = 0
 let wstep = 1
@@ -239,18 +258,19 @@ let mode_cursor = 0
 //TODO make this a classs
 
 function tiktok() {
+  cappCursor()
   current_word = all_words[cursor]
   current_line = current_word.parent
   let run = toolbar.auto || moving
 
   if (instance < instances) {
-    markedWords = slice_around(current_line.words, current_word.index, toolbar.wchunk)
-    marker.mark2(markedWords)
+    marker.mark2(slice_around(current_line.words, current_word.local_index, toolbar.wchunk))
     instance += 1 * run
   }
   else {
     instance = 0
     cursor += wstep * dir
+    cappCursor()
     instances = all_words[cursor].time
   }
 
@@ -258,7 +278,6 @@ function tiktok() {
 
 
 function tiktokKeysHelper() {
-
   right = keys[39]
   left = keys[37]
 
@@ -277,11 +296,11 @@ function keyPress(key) {
   switch (key) {
     case 37:
       //left
-      if (!moving) cursor--
+      if (!moving) cursor-=1
       break;
     case 39:
       //right
-      if (!moving) cursor++
+      if (!moving) cursor+=1
       break;
     case 38:
       //up
@@ -387,7 +406,7 @@ function cap(num, min, max) {
 }
 
 function lines2words(down = true) {
-  cursor = setCapped(cursor, down ? (current_line.words.length - current_word.index) : -current_word.index - 1, 0, Infinity)
+  cursor = setCapped(cursor, down ? (current_line.words.length - current_word.local_index) : -current_word.local_index - 1, 0, Infinity)
   if (!down) cursor = setCapped(cursor, -all_words[cursor].parent.words.length + 1, 0, Infinity)
 }
 
@@ -396,3 +415,6 @@ function setCapped(vari, val, final_min, final_max) {
   return cap(target_val, final_min, final_max)
 }
 
+function cappCursor(){
+  cursor = cursor > 0 ? cursor < max_cursor ? cursor : max_cursor : 0
+}
