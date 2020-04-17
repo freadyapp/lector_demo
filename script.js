@@ -101,7 +101,6 @@ class Marker {
       these.forEach(that => {
         w += that.width + 4
         // t += that.time + 0.1
-        
         t += that.next ? that.next.time+that.time : 0
       })
 
@@ -113,7 +112,7 @@ class Marker {
       });
       $(this.dom).css({
         'width': `${w}px`,
-        'width': `100px`,
+        // 'width': `${these.length*50}px`,
         'height': these[0].parent.height*2,
         'transition-duration': `${t*instance_ms}ms`,
         'transition-timing-function': 'ease'
@@ -292,13 +291,21 @@ let current_line = null
 let color_cursor = 0
 let mode_cursor = 0
 
+let last_of_the_line = false
 //TODO make this a classs
+let markers = marker
+let marker_index = 0
 
 function tiktok() {
   cappCursor()
   current_word = all_words[cursor]
   current_line = current_word.parent
   let run = toolbar.auto || moving
+
+  if (!last_of_the_line && current_word.next==null) {
+    last_of_the_line= true
+    instances*=3
+  }
 
   if (instance < instances) {
     marker.mark2(slice_around(current_line.words, current_word.local_index, toolbar.wchunk))
@@ -307,6 +314,8 @@ function tiktok() {
   else {
     instance = 0
     cursor += wstep * dir
+    last_of_the_line = false
+    marker_index = 0
     cappCursor()
     instances = all_words[cursor].time
   }
