@@ -3,7 +3,7 @@
 const pointer_css_dictionary = {
   'position': 'absolute',
   'outline': 'solid 0px red',
-  'background-color': '#FFDC00',
+  'background-color': 'transparent',
   'width': '10px',
   'height': '20px',
   'z-index': '10',
@@ -147,8 +147,18 @@ class Word extends MapElement {
     this.content = wt.textContent
     this.time = parseInt(wt.getAttribute('l'))
     this.local_index = li
+
+    //css
+    $(this.dom).css({
+      'cursor': 'pointer'
+    });
+    
+    // listeners setup 
     this.dom.parent = this
-    this.dom.addEventListener("click", word_clicked);
+    this.dom.addEventListener("click", word_click);
+    this.dom.addEventListener("mouseover", word_over, false);
+    this.dom.addEventListener("mouseout", word_out, false);
+
   }
 
   
@@ -158,9 +168,15 @@ class Word extends MapElement {
   }
 }
 
-function word_clicked() {
-  print(this.parent.public_index)
+function word_click() {
   cursor = this.parent.public_index
+}
+
+function word_over() {
+  this.style.backgroundColor = 'lightgray'
+}
+function word_out(){
+  this.style.backgroundColor = 'transparent'
 }
 
 
