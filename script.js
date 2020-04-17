@@ -15,7 +15,7 @@ const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_
 
 let initial_wpm = 420
 let initial_wchunk = 1
-let frame_interval_ms = wpm2ms(initial_wpm)
+let instance_ms = wpm2ms(initial_wpm)
 
 
 // classes
@@ -34,7 +34,7 @@ class Toolbar {
   set wpm(n) {
     this.wpm_val = n
     $(this.wpm_div).text(this.wpm_val)
-    frame_interval_ms = wpm2ms(this.wpm)
+    instance_ms = wpm2ms(this.wpm)
   }
 
   get wpm() {
@@ -61,7 +61,6 @@ class Marker {
       'background-color': backColorHex,
       'border-bottom': bordersBottomString,
       'border-left': bordersLeftString,
-
       'opacity' : opacity
     }
   }
@@ -96,12 +95,11 @@ class Marker {
 
   mark2(these) {
     if (marker_force_resize || !arraysEqual(these, this.last_marked)){
-      print('marking')
-      let h = 0
+      let t = 0
       let w = 0
-
       these.forEach(that => {
-        w += (that.width) + 4
+        w += that.width + 4
+        t += that.time
       })
 
       $(this.dom).offset({
@@ -110,7 +108,8 @@ class Marker {
       });
       $(this.dom).css({
         'width': `${w}px`,
-        'height': these[0].parent.height*2
+        'height': these[0].parent.height*2,
+        'transition-duration': `${t*instance_ms}ms`
       });
       this.last_marked = these
       marker_force_resize = false
@@ -132,10 +131,10 @@ class MapElement {
     return this.dom.getBoundingClientRect().height
   }
   get left() {
-    return this.dom.getBoundingClientRect().left
+    return $(this.dom).offset().left
   }
   get top() {
-    return this.dom.getBoundingClientRect().top
+    return $(this.dom).offset().top
   }
 }
 
@@ -147,10 +146,13 @@ class Line extends MapElement {
     this.findex = findex
     let word_divs = lt.getElementsByTagName('wt')
     for (var i = 0; i < word_divs.length; i++) {
-      let w = new Word(word_divs[i], this, i)
-      this.words.push(w)
-      all_words.push(w)
-      this.time += w.time
+      if (isWord(word_divs[i].textContent)){
+        let w = new Word(word_divs[i], this, i)
+        this.words.push(w)
+        all_words.push(w)
+        this.time += w.time
+      }
+      
     }
   }
 }
@@ -244,21 +246,22 @@ let marker_force_resize = false
 window.onkeyup = function (e) { keys[e.keyCode] = false; keyRelease(e.keyCode) }
 window.onkeydown = function (e) { if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) e.preventDefault(); keys[e.keyCode] = true; keyPress(e.keyCode) }
 window.onresize = function () { marker_force_resize=true };
+// window.onscroll = function () { marker_force_resize = true };
 
 // initialising the locked loop
 
-let expected = Date.now() + frame_interval_ms;
-setTimeout(step, frame_interval_ms);
+let expected = Date.now() + instance_ms;
+setTimeout(step, instance_ms);
 function step() {
   let dt = Date.now() - expected; // the drift (positive for overshooting)
-  if (dt > frame_interval_ms) {
-    expected = Date.now() + frame_interval_ms;
-    setTimeout(step, frame_interval_ms);
+  if (dt > instance_ms) {
+    expected = Date.now() + instance_ms;
+    setTimeout(step, instance_ms);
   }
   tiktok();
   tiktokKeysHelper();
-  expected += frame_interval_ms;
-  setTimeout(step, Math.max(0, frame_interval_ms - dt)); // take into account drift
+  expected += instance_ms;
+  setTimeout(step, Math.max(0, instance_ms - dt)); // take into account drift
 }
 
 
@@ -401,6 +404,10 @@ function wpm2ms(wpm) {
   return 1000 / ((wpm / 60) * average_letters_in_word) // big brain meth
 }
 
+function length2ms(length) {
+
+}
+
 function slice_around(ary, i, l) {
   let start = i - Math.round((l - 1) / 2)
   let end = i + Math.round((l - 1) / 2)
@@ -438,4 +445,13 @@ function arraysEqual(a, b) {
     if (a[i] !== b[i]) return false;
   }
   return true;
+}
+function isNumber(string){
+  return (+string === +string)
+}
+
+function isWord(string){
+  if (string.length>2) return true
+  if (!isNumber(string)) return true
+  return false
 }
