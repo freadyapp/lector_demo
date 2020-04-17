@@ -94,13 +94,18 @@ class Marker {
   }
 
   mark2(these) {
+
     if (marker_force_resize || !arraysEqual(these, this.last_marked)){
       let t = 0
       let w = 0
       these.forEach(that => {
         w += that.width + 4
-        t += that.time
+        // t += that.time + 0.1
+        
+        t += that.next ? that.next.time+that.time : 0
       })
+
+      // if (this.last_marked != null) this.last_marked.forEach(that => { t += that.time + 0.1})
 
       $(this.dom).offset({
         'top': these[0].parent.top - these[0].parent.height / 4,
@@ -108,8 +113,10 @@ class Marker {
       });
       $(this.dom).css({
         'width': `${w}px`,
+        'width': `100px`,
         'height': these[0].parent.height*2,
-        'transition-duration': `${t*instance_ms}ms`
+        'transition-duration': `${t*instance_ms}ms`,
+        'transition-timing-function': 'ease'
       });
       this.last_marked = these
       marker_force_resize = false
@@ -179,6 +186,11 @@ class Word extends MapElement {
 
   get public_index() {
     return this.parent.findex+this.local_index
+  }
+
+  get next() {
+    if (this.local_index==this.parent.words.length-1) return null
+    return this.parent.words[this.local_index+1]
   }
 }
 
