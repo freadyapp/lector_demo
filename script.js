@@ -247,6 +247,8 @@ class Word extends MapElement {
 
 function word_click() {
   marker.dom.style.transition = not_running_cursor_animation
+  moving = false
+  toolbar.auto = false
   cursor = this.parent.public_index
 }
 
