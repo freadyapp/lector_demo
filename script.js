@@ -163,7 +163,7 @@ class Marker {
       //   'height': that.parent.height*2,
       // });
 
-      this.dom.style.transition = `all ${t*instance_ms}ms linear, width ${t*instance_ms*2}ms ease, height ${10}ms ease`
+      this.dom.style.transition = `all ${t*instance_ms}ms linear, width ${t*instance_ms/2}ms ease, height ${10}ms ease`
       marker_force_resize = false
       this.last_marked = calculated_words
     }
