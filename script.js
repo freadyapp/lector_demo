@@ -14,7 +14,7 @@ const pointer_css_dictionary = {
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
 const not_running_cursor_animation = 'all 100ms ease'
 
-let initial_wpm = 250
+let initial_wpm = 150
 let initial_wchunk = 1
 let instance_ms = wpm2ms(initial_wpm)
 
@@ -96,10 +96,9 @@ class Marker {
 
   mark3(that, wchunk) {
     let calculated_words = []
-    let t = that.time
+    let t = 0
     let w = 0
     var i;
-
     for (i = 0; i < wchunk; i++) {
       let el = that.next_on_lsd(i)
       calculated_words.push(el)
@@ -108,17 +107,20 @@ class Marker {
       if (el != null) {
         if (el.next != null) {
           // word is not last in line
-          t += el.next.time + 0.2
+          // t += el.next.time
           w += 2
         } else {
-          t = 5
+          // t = 5
         }
       }
     }
-    
+
+    t = that.next ? that.pre ? that.pre.time+1 : 0 : 10
+    t = that.next ? that.pre ? that.pre.time+1 : 5 : 1
+    t *= instance_ms
 
     if (marker_force_resize || !arraysEqual(calculated_words, this.last_marked)){
-
+      // print(`marking ${that.dom.textContent} for ${t}`)
       $(this.dom).offset({
         'top': that.parent.top - that.parent.height / 4,
         'left': that.left - 3
@@ -132,12 +134,7 @@ class Marker {
         'height': that.parent.height*2
       });
 
-      // $(this.dom).css({
-      //   'width': `${wchunk*50}px`,
-      //   'height': that.parent.height*2,
-      // });
-
-      this.dom.style.transition = `all ${t*instance_ms}ms linear, width 100ms ease, height ${10}ms ease`
+      this.dom.style.transition = `all ${t}ms linear, width 100ms ease, height ${10}ms ease`
       marker_force_resize = false
       this.last_marked = calculated_words
     }
@@ -197,7 +194,7 @@ class Word extends MapElement {
   constructor(wt, p, li, pi) {
     super(wt, p)
     this.content = wt.textContent
-    this.time = parseInt(wt.getAttribute('l')) > 3 ? parseInt(wt.getAttribute('l')) : 3
+    this.time = parseInt(wt.getAttribute('l')) > 4 ? parseInt(wt.getAttribute('l')) : 4
     this.local_index = li
 
     //css
@@ -221,11 +218,21 @@ class Word extends MapElement {
     if (this.local_index==this.parent.words.length-1) return null
     return this.parent.words[this.local_index+1]
   }
+  get pre() {
+    if (this.local_index == 0) return null
+    return this.parent.words[this.local_index - 1]
+  }
 
   next_on_lsd(i){
     if (i == 0) return this
     return this.next ? this.next.next_on_lsd(i-1) : null
   }
+
+  pre_on_lsd(i){
+    if (i == 0) return this
+    return this.pre ? this.pre.pre_on_lsd(i-1) : null
+  }
+  
 }
 
 function word_click() {
@@ -341,11 +348,19 @@ function tiktok() {
   cappCursor()
   current_word = all_words[cursor]
   current_line = current_word.parent
+
   run = toolbar.auto || moving
+
+  if (!run) {
+    marker.dom.style.transition = not_running_cursor_animation
+    instances = all_words[cursor].time
+  }
 
   if (!last_of_the_line && current_word.next==null) {
     last_of_the_line= true
-    instances *= Math.floor(toolbar.wpm/100)
+    print('last of the line')
+    // instances = 100000000000000
+    // instances *= Math.floor(toolbar.wpm/100)*5
   }
 
   if (instance < instances) {
@@ -357,10 +372,9 @@ function tiktok() {
     cursor += wstep * dir
     cappCursor()
     instances = all_words[cursor].time
-
     if (last_of_the_line) {
       last_of_the_line = false
-      instances *= Math.floor(toolbar.wpm / 100)
+      // instances *= Math.floor(toolbar.wpm / 100)
     }
 
   }
