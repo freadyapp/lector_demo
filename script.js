@@ -12,6 +12,7 @@ const pointer_css_dictionary = {
 }
 
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
+const not_running_cursor_animation = 'all 100ms ease'
 
 let initial_wpm = 420
 let initial_wchunk = 1
@@ -113,7 +114,7 @@ class Marker {
       $(this.dom).css({
         'width': `${w}px`,
         // 'width': `${these.length*50}px`,
-        'height': these[0].parent.height*2,
+        'height': these[0].parent.height*1.3,
         'transition-duration': `${t*instance_ms}ms`,
         'transition-timing-function': 'ease'
       });
@@ -125,21 +126,25 @@ class Marker {
   }
 
   mark3(that, wchunk) {
-    if (marker_force_resize || (that != this.last_marked)){
-      let t = that.time
-      let w = 0
-      var i;
-      for (i = 0; i < wchunk; i++) {
-        let el = that.next_on_lsd(i)
-        if (el != null){
-          w += el.width + 2
-          if (el.next != null){
-            t += el.next.time + 0.2
-          }else{
-            t = 5
-          }
+    let calculated_words = []
+    let t = that.time
+    let w = 0
+    var i;
+    for (i = 0; i < wchunk; i++) {
+      let el = that.next_on_lsd(i)
+      if (el != null) {
+        calculated_words.push(el)
+        w += el.width + 2
+        if (el.next != null) {
+          t += el.next.time + 0.2
+        } else {
+          t = 5
         }
       }
+    }
+
+    if (marker_force_resize || !arraysEqual(calculated_words, this.last_marked)){
+      print(`marking ${that.dom.textContent}`)
 
       $(this.dom).offset({
         'top': that.parent.top - that.parent.height / 4,
@@ -150,15 +155,17 @@ class Marker {
       $(this.dom).css({
         'width': `${setCapped(w, 0, 30, 600)}px`,
         // 'width': `${wchunk*50}px`,
-        'height': that.parent.height*2,
-        // 'transition-property': 'width',
-        // 'transition-duration': `${t*instance_ms}ms`,
-        // 'transition-timing-function': 'ease'
+        'height': that.parent.height*2
       });
 
-      // this.dom.style.transition = `all ${t*instance_ms}ms ease, width ${t*instance_ms*2}ms ease`
+      $(this.dom).css({
+        'width': `${wchunk*50}px`,
+        'height': that.parent.height*2,
+      });
+
+      this.dom.style.transition = `all ${t*instance_ms}ms linear, width ${t*instance_ms*2}ms ease, height ${10}ms ease`
       marker_force_resize = false
-      this.last_marked = that
+      this.last_marked = calculated_words
     }
     
     $(this.dom).css(this.mode_css)
@@ -207,7 +214,7 @@ class Word extends MapElement {
   constructor(wt, p, li, pi) {
     super(wt, p)
     this.content = wt.textContent
-    this.time = parseInt(wt.getAttribute('l'))
+    this.time = parseInt(wt.getAttribute('l')) > 3 ? parseInt(wt.getAttribute('l')) : 3
     this.local_index = li
 
     //css
@@ -239,6 +246,7 @@ class Word extends MapElement {
 }
 
 function word_click() {
+  marker.dom.style.transition = not_running_cursor_animation
   cursor = this.parent.public_index
 }
 
@@ -390,18 +398,31 @@ function keyPress(key) {
   switch (key) {
     case 37:
       //left
-      if (!moving) cursor-=1
+
+      if (!moving){
+        marker.dom.style.transition = not_running_cursor_animation
+        cursor-=1
+      }
+
       break;
     case 39:
       //right
-      if (!moving) cursor+=1
+
+      if (!moving) {
+        marker.dom.style.transition = not_running_cursor_animation
+        cursor += 1
+      }
       break;
     case 38:
       //up
+      marker.dom.style.transition = not_running_cursor_animation
+
       lines2words(false)
       break;
     case 40:
       //down
+      marker.dom.style.transition = not_running_cursor_animation
+
       lines2words(true)
       break;
     case 67:
@@ -424,12 +445,12 @@ function keyPress(key) {
       break;
     case 190:
       //> (intepret it as +)
-      marker_force_resize = true
+      // marker_force_resize = true
       toolbar.wchunk = setCapped(toolbar.wchunk, +1, 1, 5)
       break;
     case 188:
       //<
-      marker_force_resize = true
+      // marker_force_resize = true
       toolbar.wchunk = setCapped(toolbar.wchunk, -1, 1, 5)
       break;
     default:
