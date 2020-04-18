@@ -14,7 +14,7 @@ const pointer_css_dictionary = {
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
 const not_running_cursor_animation = 'all 100ms ease'
 
-let initial_wpm = 420
+let initial_wpm = 250
 let initial_wchunk = 1
 let instance_ms = wpm2ms(initial_wpm)
 
@@ -148,13 +148,14 @@ class Marker {
 
       $(this.dom).offset({
         'top': that.parent.top - that.parent.height / 4,
-        'left': that.left - 2
+        'left': that.left - 3
       });
       print(setCapped(w, 0, 30, 600))
       print(w)
       $(this.dom).css({
         'width': `${setCapped(w, 0, 30, 600)}px`,
-        // 'width': `${wchunk*50}px`,
+        'width': `${w}px`,
+        'width': `${wchunk*50}px`,
         'height': that.parent.height*2
       });
 
