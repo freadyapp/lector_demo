@@ -94,68 +94,41 @@ class Marker {
     this.mode_code = code % this.modes.length
   }
 
-  mark2(these) {
-
-    if (marker_force_resize || !arraysEqual(these, this.last_marked)){
-      let t = 0
-      let w = 0
-      these.forEach(that => {
-        w += that.width + 4
-        // t += that.time + 0.1
-      })
-      t += these[0].next ? these[0].next.time + these[0].time : 0
-
-      // if (this.last_marked != null) this.last_marked.forEach(that => { t += that.time + 0.1})
-
-      $(this.dom).offset({
-        'top': these[0].parent.top - these[0].parent.height / 4,
-        'left': these[0].left - 2
-      });
-      $(this.dom).css({
-        'width': `${w}px`,
-        // 'width': `${these.length*50}px`,
-        'height': these[0].parent.height*1.3,
-        'transition-duration': `${t*instance_ms}ms`,
-        'transition-timing-function': 'ease'
-      });
-      this.last_marked = these
-      marker_force_resize = false
-    }
-    
-    $(this.dom).css(this.mode_css)
-  }
-
   mark3(that, wchunk) {
     let calculated_words = []
     let t = that.time
     let w = 0
     var i;
+
     for (i = 0; i < wchunk; i++) {
       let el = that.next_on_lsd(i)
+      calculated_words.push(el)
+      w += el!=null? run ? calculated_words[0].parent.avg_word_length : el.width : 50
+
       if (el != null) {
-        calculated_words.push(el)
-        w += el.width + 2
         if (el.next != null) {
+          // word is not last in line
           t += el.next.time + 0.2
+          w += 2
         } else {
           t = 5
         }
       }
     }
+    
 
     if (marker_force_resize || !arraysEqual(calculated_words, this.last_marked)){
-      print(`marking ${that.dom.textContent}`)
 
       $(this.dom).offset({
         'top': that.parent.top - that.parent.height / 4,
         'left': that.left - 3
       });
-      print(setCapped(w, 0, 30, 600))
-      print(w)
+
+      
+
       $(this.dom).css({
         'width': `${setCapped(w, 0, 30, 600)}px`,
         'width': `${w}px`,
-        'width': `${wchunk*50}px`,
         'height': that.parent.height*2
       });
 
@@ -164,7 +137,7 @@ class Marker {
       //   'height': that.parent.height*2,
       // });
 
-      this.dom.style.transition = `all ${t*instance_ms}ms linear, width ${t*instance_ms/2}ms ease, height ${10}ms ease`
+      this.dom.style.transition = `all ${t*instance_ms}ms linear, width 100ms ease, height ${10}ms ease`
       marker_force_resize = false
       this.last_marked = calculated_words
     }
@@ -190,6 +163,12 @@ class MapElement {
   get top() {
     return $(this.dom).offset().top
   }
+  get right() {
+    return $(this.dom).offset().right
+  }
+  get bottom() {
+    return $(this.dom).offset().bottom
+  }
 }
 
 class Line extends MapElement {
@@ -198,6 +177,7 @@ class Line extends MapElement {
     this.words = []
     this.time = 0
     this.findex = findex
+    this.avg_word_length = 0
     let word_divs = lt.getElementsByTagName('wt')
     for (var i = 0; i < word_divs.length; i++) {
       if (isWord(word_divs[i].textContent)){
@@ -205,9 +185,11 @@ class Line extends MapElement {
         this.words.push(w)
         all_words.push(w)
         this.time += w.time
+        this.avg_word_length += w.width + 2
       }
       
     }
+    this.avg_word_length /= this.words.length
   }
 }
 
@@ -248,6 +230,7 @@ class Word extends MapElement {
 
 function word_click() {
   marker.dom.style.transition = not_running_cursor_animation
+  marker_force_word_width = true
   moving = false
   toolbar.auto = false
   cursor = this.parent.public_index
@@ -310,9 +293,10 @@ setUpDoc();
 // key listeners
 let keys = {};
 let marker_force_resize = false
+let marker_force_word_width = true
 window.onkeyup = function (e) { keys[e.keyCode] = false; keyRelease(e.keyCode) }
 window.onkeydown = function (e) { if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) e.preventDefault(); keys[e.keyCode] = true; keyPress(e.keyCode) }
-window.onresize = function () { marker_force_resize=true };
+window.onresize = function () { marker.dom.style.transition = not_running_cursor_animation;marker_force_resize=true };
 // window.onscroll = function () { marker_force_resize = true };
 
 // initialising the locked loop
@@ -349,17 +333,19 @@ let mode_cursor = 0
 
 let last_of_the_line = false
 let first_of_the_line = false
+
+let run = false
 //TODO make this a classs
 
 function tiktok() {
   cappCursor()
   current_word = all_words[cursor]
   current_line = current_word.parent
-  let run = toolbar.auto || moving
+  run = toolbar.auto || moving
 
   if (!last_of_the_line && current_word.next==null) {
     last_of_the_line= true
-    instances *= 3
+    instances *= Math.floor(toolbar.wpm/100)
   }
 
   if (instance < instances) {
@@ -374,7 +360,7 @@ function tiktok() {
 
     if (last_of_the_line) {
       last_of_the_line = false
-      instances *= 3
+      instances *= Math.floor(toolbar.wpm / 100)
     }
 
   }
@@ -404,6 +390,7 @@ function keyPress(key) {
 
       if (!moving){
         marker.dom.style.transition = not_running_cursor_animation
+        marker_force_word_width = true
         cursor-=1
       }
 
@@ -413,19 +400,21 @@ function keyPress(key) {
 
       if (!moving) {
         marker.dom.style.transition = not_running_cursor_animation
+        marker_force_word_width = true
         cursor += 1
       }
       break;
     case 38:
       //up
       marker.dom.style.transition = not_running_cursor_animation
+      marker_force_word_width = true
 
       lines2words(false)
       break;
     case 40:
       //down
       marker.dom.style.transition = not_running_cursor_animation
-
+      marker_force_word_width = true
       lines2words(true)
       break;
     case 67:
