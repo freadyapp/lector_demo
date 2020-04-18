@@ -101,8 +101,8 @@ class Marker {
       these.forEach(that => {
         w += that.width + 4
         // t += that.time + 0.1
-        t += that.next ? that.next.time+that.time : 0
       })
+      t += these[0].next ? these[0].next.time + these[0].time : 0
 
       // if (this.last_marked != null) this.last_marked.forEach(that => { t += that.time + 0.1})
 
@@ -119,6 +119,46 @@ class Marker {
       });
       this.last_marked = these
       marker_force_resize = false
+    }
+    
+    $(this.dom).css(this.mode_css)
+  }
+
+  mark3(that, wchunk) {
+    if (marker_force_resize || (that != this.last_marked)){
+      let t = that.time
+      let w = 0
+      var i;
+      for (i = 0; i < wchunk; i++) {
+        let el = that.next_on_lsd(i)
+        if (el != null){
+          w += el.width + 2
+          if (el.next != null){
+            t += el.next.time + 0.2
+          }else{
+            t = 5
+          }
+        }
+      }
+
+      $(this.dom).offset({
+        'top': that.parent.top - that.parent.height / 4,
+        'left': that.left - 2
+      });
+      print(setCapped(w, 0, 30, 600))
+      print(w)
+      $(this.dom).css({
+        'width': `${setCapped(w, 0, 30, 600)}px`,
+        // 'width': `${wchunk*50}px`,
+        'height': that.parent.height*2,
+        // 'transition-property': 'width',
+        // 'transition-duration': `${t*instance_ms}ms`,
+        // 'transition-timing-function': 'ease'
+      });
+
+      // this.dom.style.transition = `all ${t*instance_ms}ms ease, width ${t*instance_ms*2}ms ease`
+      marker_force_resize = false
+      this.last_marked = that
     }
     
     $(this.dom).css(this.mode_css)
@@ -190,6 +230,11 @@ class Word extends MapElement {
   get next() {
     if (this.local_index==this.parent.words.length-1) return null
     return this.parent.words[this.local_index+1]
+  }
+
+  next_on_lsd(i){
+    if (i == 0) return this
+    return this.next ? this.next.next_on_lsd(i-1) : null
   }
 }
 
@@ -292,9 +337,8 @@ let color_cursor = 0
 let mode_cursor = 0
 
 let last_of_the_line = false
+let first_of_the_line = false
 //TODO make this a classs
-let markers = marker
-let marker_index = 0
 
 function tiktok() {
   cappCursor()
@@ -304,20 +348,24 @@ function tiktok() {
 
   if (!last_of_the_line && current_word.next==null) {
     last_of_the_line= true
-    instances*=3
+    instances *= 3
   }
 
   if (instance < instances) {
-    marker.mark2(slice_around(current_line.words, current_word.local_index, toolbar.wchunk))
+    marker.mark3(current_word, (toolbar.wchunk))
     instance += 1 * run
   }
   else {
     instance = 0
     cursor += wstep * dir
-    last_of_the_line = false
-    marker_index = 0
     cappCursor()
     instances = all_words[cursor].time
+
+    if (last_of_the_line) {
+      last_of_the_line = false
+      instances *= 3
+    }
+
   }
 
 }
@@ -376,10 +424,12 @@ function keyPress(key) {
       break;
     case 190:
       //> (intepret it as +)
+      marker_force_resize = true
       toolbar.wchunk = setCapped(toolbar.wchunk, +1, 1, 5)
       break;
     case 188:
       //<
+      marker_force_resize = true
       toolbar.wchunk = setCapped(toolbar.wchunk, -1, 1, 5)
       break;
     default:
