@@ -103,26 +103,23 @@ class Marker {
     // w += el != null ? run ? that.parent.avg_word_length : el.width : 50
     // w += 3*that.parent.avg_word_length
 
-    let fovea_to_cm = 1.7
-    w = fovea_to_cm * 37.7952755906
+    w = fovea_to_px(fovea)
     t = that.next ? that.pre ? that.pre.time+1 : 5 : 1
     t *= instance_ms
 
-    let left = that.pre ? that.pre.left-3 : that.left
-    print(left)
+    // let left = that.pre ? that.pre.left-3 : that.left
+    let left = that.left
     let calculated_words = [that]
 
     if (marker_force_resize || !arraysEqual(calculated_words, this.last_marked)){
+      let shift = ((that.right - that.left) - w)/2
       print(`marking ${that.dom.textContent} for ${t}`)
       $(this.dom).offset({
         'top': that.parent.top - that.parent.height / 4,
-        'left': left
+        'left': left+shift
       });
 
-      
-
       $(this.dom).css({
-        'width': `${setCapped(w, 0, 30, 600)}px`,
         'width': `${w}px`,
         'height': that.parent.height*2
       });
@@ -344,7 +341,7 @@ let marker_force_resize = false
 let marker_force_word_width = true
 window.onkeyup = function (e) { keys[e.keyCode] = false; keyRelease(e.keyCode) }
 window.onkeydown = function (e) { if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) e.preventDefault(); keys[e.keyCode] = true; keyPress(e.keyCode) }
-window.onresize = function () { marker.dom.style.transition = not_running_cursor_animation;marker_force_resize=true };
+window.onresize = function () { marker.dom.style.transition = not_running_cursor_animation; marker_force_resize=true };
 // window.onscroll = function () { marker_force_resize = true };
 
 // initialising the locked loop
@@ -383,7 +380,6 @@ let last_of_the_line = false
 let first_of_the_line = false
 
 let run = false
-//TODO make this a classs
 
 function tiktok() {
   cappCursor()
@@ -491,12 +487,12 @@ function keyPress(key) {
       break;
     case 190:
       //> (intepret it as +)
-      // marker_force_resize = true
+      marker_force_resize = true
       toolbar.fovea = setCapped(toolbar.fovea, +1, 1, 5)
       break;
     case 188:
       //<
-      // marker_force_resize = true
+      marker_force_resize = true
       toolbar.fovea = setCapped(toolbar.fovea, -1, 1, 5)
       break;
     default:
