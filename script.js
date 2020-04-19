@@ -13,9 +13,11 @@ const pointer_css_dictionary = {
 
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
 const not_running_cursor_animation = 'all 100ms ease'
+const distance_from_monitor = 40
+const cm_to_px = 37.7952755906
 
 let initial_wpm = 250
-let initial_wchunk = 3
+let initial_fovea = 2
 let instance_ms = wpm2ms(initial_wpm)
 
 
@@ -27,7 +29,7 @@ class Toolbar {
     this.wpm_div = wpm_div
     this.wpm_val = initial_wpm
     this.wpm = this.wpm_val
-    this.wchunk = initial_wchunk
+    this.fovea = initial_fovea
     this.color_index = 0
     this.auto = false
   }
@@ -94,12 +96,13 @@ class Marker {
     this.mode_code = code % this.modes.length
   }
 
-  mark3(that, wchunk) {
+  mark3(that, fovea) {
     let t = 0
     let w = 0
 
     // w += el != null ? run ? that.parent.avg_word_length : el.width : 50
     // w += 3*that.parent.avg_word_length
+
     let fovea_to_cm = 1.7
     w = fovea_to_cm * 37.7952755906
     t = that.next ? that.pre ? that.pre.time+1 : 5 : 1
@@ -132,12 +135,12 @@ class Marker {
     $(this.dom).css(this.mode_css)
   }
 
-  mark2(that, wchunk) {
+  mark2(that, fovea) {
     let calculated_words = []
     let t = 0
     let w = 0
     var i;
-    for (i = 0; i < wchunk; i++) {
+    for (i = 0; i < fovea; i++) {
       let el = that.next_on_lsd(i)
       calculated_words.push(el)
       w += el!=null? run ? calculated_words[0].parent.avg_word_length : el.width : 50
@@ -401,7 +404,7 @@ function tiktok() {
   }
 
   if (instance < instances) {
-    marker.mark3(current_word, (toolbar.wchunk))
+    marker.mark3(current_word, (toolbar.fovea))
     instance += 1 * run
   }
   else {
@@ -489,12 +492,12 @@ function keyPress(key) {
     case 190:
       //> (intepret it as +)
       // marker_force_resize = true
-      toolbar.wchunk = setCapped(toolbar.wchunk, +1, 1, 5)
+      toolbar.fovea = setCapped(toolbar.fovea, +1, 1, 5)
       break;
     case 188:
       //<
       // marker_force_resize = true
-      toolbar.wchunk = setCapped(toolbar.wchunk, -1, 1, 5)
+      toolbar.fovea = setCapped(toolbar.fovea, -1, 1, 5)
       break;
     default:
     // code block
@@ -539,8 +542,12 @@ function wpm2ms(wpm) {
   return 1000 / ((wpm / 60) * average_letters_in_word) // big brain meth
 }
 
-function length2ms(length) {
+function deg2rad(deg) {
+  return deg*(Math.PI/180)
+}
 
+function fovea_to_px(fov){
+  return (2*Math.sin(deg2rad(fov/2))*distance_from_monitor)*cm_to_px
 }
 
 function slice_around(ary, i, l) {
@@ -581,6 +588,7 @@ function arraysEqual(a, b) {
   }
   return true;
 }
+
 function isNumber(string){
   return (+string === +string)
 }
