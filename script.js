@@ -104,7 +104,7 @@ class Marker {
     // w += 3*that.parent.avg_word_length
 
     w = fovea_to_px(fovea)
-    t = that.next ? that.pre ? that.pre.time+1 : 5 : 1
+    t = that.next ? that.pre ? that.pre.time+1 : 5 : 5 // animation time if first or last of the line animate the pointer move 
     t *= instance_ms
 
     // let left = that.pre ? that.pre.left-3 : that.left
@@ -232,7 +232,7 @@ class Word extends MapElement {
   constructor(wt, p, li, pi) {
     super(wt, p)
     this.content = wt.textContent
-    this.time = parseInt(wt.getAttribute('l')) > 4 ? parseInt(wt.getAttribute('l')) : 4
+    this.time = parseInt(wt.getAttribute('l')) > 3 ? parseInt(wt.getAttribute('l')) : 3
     this.local_index = li
 
     //css
@@ -395,8 +395,8 @@ function tiktok() {
 
   if (!last_of_the_line && current_word.next==null) {
     last_of_the_line= true
-    // instances = 100000000000000
-    // instances *= Math.floor(toolbar.wpm/100)*5
+    print('last of the line')
+    instances *= Math.floor(toolbar.wpm/100)
   }
 
   if (instance < instances) {
@@ -407,10 +407,10 @@ function tiktok() {
     instance = 0
     cursor += wstep * dir
     cappCursor()
-    // instances = all_words[cursor].time
+    instances = all_words[cursor].time
     if (last_of_the_line) {
       last_of_the_line = false
-      // instances *= Math.floor(toolbar.wpm / 100)
+      instances *= Math.floor(toolbar.wpm / 100)
     }
 
   }
