@@ -2,7 +2,7 @@
 
 The *Lector* project aims to enhance your reading and studying potential from an electronic screen. Found out more in [Lector's about page](https://fready.herokuapp.com) on our website.
 
-This `README` will focus on how to install and play with the software yourself and contribute your own ideas to the Fready community.
+This `README` will focus on how to install and play with the software yourself and contribute your ideas to the Fready community.
 
 # Installation
 
@@ -15,7 +15,7 @@ This `README` will focus on how to install and play with the software yourself a
 
 A sample *environment-sandbox* is already in place. But if you want to customize it here's the recommended procedure.
 
-The way this development environment is setup, requires a `.frd` file reader's output. An `frd` reader just converts the JSON to HTML. 
+The way this development environment is setup requires a `.frd` file reader's output. An `frd` reader just converts the JSON to HTML. 
 
 `.frd` file example (*Just a fancy JSON*)
 ```JSON
