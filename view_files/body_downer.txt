@@ -2,6 +2,6 @@
 </div>
 </div>
 
-<script src="script.js"></script>
+<script src="lector_script.js"></script>
 
 </body>
