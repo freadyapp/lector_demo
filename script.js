@@ -99,7 +99,9 @@ class Marker {
     let w = 0
 
     // w += el != null ? run ? that.parent.avg_word_length : el.width : 50
-    w += 3*that.parent.avg_word_length
+    // w += 3*that.parent.avg_word_length
+    let fovea_to_cm = 1.7
+    w = fovea_to_cm * 37.7952755906
     t = that.next ? that.pre ? that.pre.time+1 : 5 : 1
     t *= instance_ms
 
