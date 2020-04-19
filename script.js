@@ -1,6 +1,6 @@
 // constants
 
-const pointer_css_dictionary = {
+const pointer_base_css = {
   'position': 'absolute',
   'outline': 'solid 0px red',
   'background-color': 'transparent',
@@ -12,7 +12,7 @@ const pointer_css_dictionary = {
 }
 
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
-const not_running_cursor_animation = 'all 100ms ease'
+const not_running_pointer_transition_css = 'all 100ms ease'
 const distance_from_monitor = 40
 const cm_to_px = 37.7952755906
 
@@ -24,9 +24,9 @@ let instance_ms = wpm2ms(initial_wpm)
 // classes
 
 class Toolbar {
-  constructor(div, wpm_div) {
+  constructor(div, wpm_dom) {
     this.dom = div
-    this.wpm_div = wpm_div
+    this.wpm_dom = wpm_dom
     this.wpm_val = initial_wpm
     this.wpm = this.wpm_val
     this.fovea = initial_fovea
@@ -36,7 +36,7 @@ class Toolbar {
 
   set wpm(n) {
     this.wpm_val = n
-    $(this.wpm_div).text(this.wpm_val)
+    $(this.wpm_dom).text(this.wpm_val)
     instance_ms = wpm2ms(this.wpm)
   }
 
@@ -50,10 +50,10 @@ class Marker {
 
   constructor(div) {
     this.dom = div
-    this.color_code = 0
+    this.color_index = 0
     this.color_hex = ''
     this.color = 0
-    this.mode_code = 0
+    this.mode_index = 0
     this.mode = 0
 
     this.last_marked = null
@@ -79,8 +79,8 @@ class Marker {
   }
 
   get mode_css(){
-    this.mode = this.mode_code
-    return this.modes[this.mode_code]
+    this.mode = this.mode_index
+    return this.modes[this.mode_index]
   }
 
   get colors(){
@@ -88,12 +88,12 @@ class Marker {
   }
 
   set color(code) {
-    this.color_code = code % this.colors.length
-    this.color_hex = this.colors[this.color_code]
+    this.color_index = code % this.colors.length
+    this.color_hex = this.colors[this.color_index]
   }
 
   set mode(code){
-    this.mode_code = code % this.modes.length
+    this.mode_index = code % this.modes.length
   }
 
   mark3(that, fovea) {
@@ -132,53 +132,6 @@ class Marker {
     $(this.dom).css(this.mode_css)
   }
 
-  mark2(that, fovea) {
-    let calculated_words = []
-    let t = 0
-    let w = 0
-    var i;
-    for (i = 0; i < fovea; i++) {
-      let el = that.next_on_lsd(i)
-      calculated_words.push(el)
-      w += el!=null? run ? calculated_words[0].parent.avg_word_length : el.width : 50
-
-      if (el != null) {
-        if (el.next != null) {
-          // word is not last in line
-          // t += el.next.time
-          w += 2
-        } else {
-          // t = 5
-        }
-      }
-    }
-
-    t = that.next ? that.pre ? that.pre.time+1 : 0 : 10
-    t = that.next ? that.pre ? that.pre.time+1 : 5 : 1
-    t *= instance_ms
-
-    if (marker_force_resize || !arraysEqual(calculated_words, this.last_marked)){
-      // print(`marking ${that.dom.textContent} for ${t}`)
-      $(this.dom).offset({
-        'top': that.parent.top - that.parent.height / 4,
-        'left': that.left - 3
-      });
-
-      
-
-      $(this.dom).css({
-        'width': `${setCapped(w, 0, 30, 600)}px`,
-        'width': `${w}px`,
-        'height': that.parent.height*2
-      });
-
-      this.dom.style.transition = `all ${t}ms linear, width 100ms ease, height ${10}ms ease`
-      marker_force_resize = false
-      this.last_marked = calculated_words
-    }
-    
-    $(this.dom).css(this.mode_css)
-  }
 }
 
 class MapElement {
@@ -213,16 +166,20 @@ class Line extends MapElement {
     this.time = 0
     this.findex = findex
     this.avg_word_length = 0
-    let word_divs = lt.getElementsByTagName('wt')
-    for (var i = 0; i < word_divs.length; i++) {
-      if (isWord(word_divs[i].textContent)){
-        let w = new Word(word_divs[i], this, i)
+    this.build_words(lt.getElementsByTagName('wt'))
+    
+  }
+
+  build_words(doms){
+    for (var i = 0; i < doms.length; i++) {
+      if (isWord(doms[i].textContent)) {
+        let w = new Word(doms[i], this, i)
         this.words.push(w)
         all_words.push(w)
         this.time += w.time
         this.avg_word_length += w.width + 2
       }
-      
+
     }
     this.avg_word_length /= this.words.length
   }
@@ -274,7 +231,7 @@ class Word extends MapElement {
 }
 
 function word_click() {
-  marker.dom.style.transition = not_running_cursor_animation
+  marker.dom.style.transition = not_running_pointer_transition_css
   marker_force_word_width = true
   moving = false
   toolbar.auto = false
@@ -308,7 +265,7 @@ function setUpDoc() {
 
 function setUpPointer() {
   let pointer_div = document.createElement('div')
-  $(pointer_div).css(pointer_css_dictionary);
+  $(pointer_div).css(pointer_base_css);
   $('#reader').append(pointer_div)
   marker = new Marker(pointer_div)
 }
@@ -316,11 +273,11 @@ function setUpPointer() {
 function setUpToolbar() {
 
   let toolbar_div = document.getElementsByClassName(toolbar_div_class_name)
-  let wpm_div = document.getElementById('wpm')
+  let wpm_dom = document.getElementById('wpm')
   let wpm_plus = document.getElementById('wpm_plus')
   let wpm_minus = document.getElementById('wpm_minus')
 
-  toolbar = new Toolbar(toolbar_div, wpm_div)
+  toolbar = new Toolbar(toolbar_div, wpm_dom)
 }
 
 function setUpLines(lines, lines_array) {
@@ -341,7 +298,7 @@ let marker_force_resize = false
 let marker_force_word_width = true
 window.onkeyup = function (e) { keys[e.keyCode] = false; keyRelease(e.keyCode) }
 window.onkeydown = function (e) { if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) e.preventDefault(); keys[e.keyCode] = true; keyPress(e.keyCode) }
-window.onresize = function () { marker.dom.style.transition = not_running_cursor_animation; marker_force_resize=true };
+window.onresize = function () { marker.dom.style.transition = not_running_pointer_transition_css; marker_force_resize=true };
 // window.onscroll = function () { marker_force_resize = true };
 
 // initialising the locked loop
@@ -389,7 +346,7 @@ function tiktok() {
   run = toolbar.auto || moving
 
   if (!run) {
-    marker.dom.style.transition = not_running_cursor_animation
+    marker.dom.style.transition = not_running_pointer_transition_css
     instances = all_words[cursor].time
   }
 
@@ -439,7 +396,7 @@ function keyPress(key) {
       //left
 
       if (!moving){
-        marker.dom.style.transition = not_running_cursor_animation
+        marker.dom.style.transition = not_running_pointer_transition_css
         marker_force_word_width = true
         cursor-=1
       }
@@ -449,21 +406,21 @@ function keyPress(key) {
       //right
 
       if (!moving) {
-        marker.dom.style.transition = not_running_cursor_animation
+        marker.dom.style.transition = not_running_pointer_transition_css
         marker_force_word_width = true
         cursor += 1
       }
       break;
     case 38:
       //up
-      marker.dom.style.transition = not_running_cursor_animation
+      marker.dom.style.transition = not_running_pointer_transition_css
       marker_force_word_width = true
 
       lines2words(false)
       break;
     case 40:
       //down
-      marker.dom.style.transition = not_running_cursor_animation
+      marker.dom.style.transition = not_running_pointer_transition_css
       marker_force_word_width = true
       lines2words(true)
       break;
