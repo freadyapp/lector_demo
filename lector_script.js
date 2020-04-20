@@ -8,7 +8,8 @@ const pointer_base_css = {
   'height': '20px',
   'z-index': '10',
   'opacity': '100%',
-  'mix-blend-mode': 'darken'
+  'mix-blend-mode': 'darken',
+  'border-radius': '3px'
 }
 const word_element_css = {
   'cursor': 'pointer'
