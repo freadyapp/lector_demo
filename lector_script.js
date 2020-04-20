@@ -54,12 +54,12 @@ function word_out() {
 // classes
 
 class Toolbar {
-  constructor(div, marker_dom, wpm_dom, fovea_dom) {
+  constructor(div) {
     this.dom = div
 
-    this.wpm_dom = wpm_dom
-    this.marker_dom = marker_dom
-    this.fovea_dom = fovea_dom
+    this.marker_dom = document.getElementById('marker_barton')
+    this.wpm_dom = document.getElementById('sped_barton')
+    this.fovea_dom = document.getElementById('fovea_barton')
 
     this.wpm_val = initial_wpm
     this.wpm = this.wpm_val
@@ -67,7 +67,7 @@ class Toolbar {
     this.fovea_val = initial_fovea
     this.fovea = this.fovea_val
 
-    this.color_index = 0
+    this.color = 0
     this.auto = false
   }
 
@@ -89,22 +89,32 @@ class Toolbar {
   get fovea() {
     return this.fovea_val
   }
+
+  get colors() {
+    return marker_colors_ary
+  }
+
+  set color(code) {
+    this.color_index = code % this.colors.length
+    this.color_hex = this.colors[this.color_index]
+    this.marker_dom.style.color = this.color_hex
+  }
+
+  get color(){
+    return this.color_hex
+  }
+
 }
 
 class Marker {
 
   constructor(div, toolbar) {
     this.dom = div
-
-    this.color_index = 0
-    this.color_hex = ''
-    this.color = 0
+    this.toolbar = toolbar
 
     this.mode_index = 0
     this.mode = 0
     this.last_marked = null
-
-    this.toolbar = toolbar
   }
 
   build_mode(backColorHex, bordersBottomString='0px', bordersLeftString='0px', opacity='100%' ){
@@ -122,10 +132,9 @@ class Marker {
 
   get modes(){
     return ([
-      this.build_mode(this.color_hex),
-      this.build_mode(`linear-gradient(0.25turn, rgba(255,0,0,0),${this.color_hex}, ${this.color_hex}, ${this.color_hex}, rgba(255,0,0,0) )`),
-      this.build_mode('transparent', '2px solid' + this.color_hex)
-
+      this.build_mode(this.color),
+      this.build_mode(`linear-gradient(0.25turn, rgba(255,0,0,0),${this.color}, ${this.color}, ${this.color}, rgba(255,0,0,0) )`),
+      this.build_mode('transparent', '2px solid' + this.color)
     ])
   }
 
@@ -134,13 +143,9 @@ class Marker {
     return this.modes[this.mode_index]
   }
 
-  get colors(){
-    return marker_colors_ary
-  }
-
-  set color(code) {
-    this.color_index = code % this.colors.length
-    this.color_hex = this.colors[this.color_index]
+  get color(){
+    // print(this.toolbar.color)
+    return this.toolbar.color
   }
 
   set mode(code){
@@ -286,16 +291,9 @@ function setUpPointer(tb) {
   marker = new Marker(pointer_div, tb)
 }
 
-function setUpToolbar() {
-
+function setUpToolbar(marker) {
   let toolbar_div = document.getElementsByClassName(toolbar_div_class_name)
-  let marker_dom = document.getElementById('marker_barton')
-  let wpm_dom = document.getElementById('sped_barton')
-  let fovea_dom = document.getElementById('fovea_barton')
-  let wpm_plus = document.getElementById('wpm_plus')
-  let wpm_minus = document.getElementById('wpm_minus')
-
-  toolbar = new Toolbar(toolbar_div, marker_dom, wpm_dom, fovea_dom)
+  toolbar = new Toolbar(toolbar_div, marker)
 }
 
 function setUpLines(lines, lines_array) {
@@ -446,7 +444,7 @@ function keyPress(key) {
     case 67:
       //c
       color_cursor += 1
-      marker.color = color_cursor
+      toolbar.color = color_cursor
       break;
     case 77:
       //m
