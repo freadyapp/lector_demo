@@ -54,12 +54,19 @@ function word_out() {
 // classes
 
 class Toolbar {
-  constructor(div, wpm_dom) {
+  constructor(div, marker_dom, wpm_dom, fovea_dom) {
     this.dom = div
+
     this.wpm_dom = wpm_dom
+    this.marker_dom = marker_dom
+    this.fovea_dom = fovea_dom
+
     this.wpm_val = initial_wpm
     this.wpm = this.wpm_val
-    this.fovea = initial_fovea
+
+    this.fovea_val = initial_fovea
+    this.fovea = this.fovea_val
+
     this.color_index = 0
     this.auto = false
   }
@@ -74,18 +81,30 @@ class Toolbar {
     return this.wpm_val
   }
 
+  set fovea(n) {
+    this.fovea_val = n
+    $(this.fovea_dom).text(`${this.fovea_val}°`)
+  }
+
+  get fovea() {
+    return this.fovea_val
+  }
 }
 
 class Marker {
 
-  constructor(div) {
+  constructor(div, toolbar) {
     this.dom = div
+
     this.color_index = 0
     this.color_hex = ''
     this.color = 0
+
     this.mode_index = 0
     this.mode = 0
     this.last_marked = null
+
+    this.toolbar = toolbar
   }
 
   build_mode(backColorHex, bordersBottomString='0px', bordersLeftString='0px', opacity='100%' ){
@@ -255,26 +274,28 @@ let toolbar = null
 function setUpDoc() {
 
   let line_divs = document.getElementsByTagName("line")
-  setUpPointer()
   setUpToolbar()
+  setUpPointer(toolbar)
   setUpLines(line_divs, lines)
 }
 
-function setUpPointer() {
+function setUpPointer(tb) {
   let pointer_div = document.createElement('div')
   $(pointer_div).css(pointer_base_css);
   $('#reader').append(pointer_div)
-  marker = new Marker(pointer_div)
+  marker = new Marker(pointer_div, tb)
 }
 
 function setUpToolbar() {
 
   let toolbar_div = document.getElementsByClassName(toolbar_div_class_name)
-  let wpm_dom = document.getElementById('wpm')
+  let marker_dom = document.getElementById('marker_barton')
+  let wpm_dom = document.getElementById('sped_barton')
+  let fovea_dom = document.getElementById('fovea_barton')
   let wpm_plus = document.getElementById('wpm_plus')
   let wpm_minus = document.getElementById('wpm_minus')
 
-  toolbar = new Toolbar(toolbar_div, wpm_dom)
+  toolbar = new Toolbar(toolbar_div, marker_dom, wpm_dom, fovea_dom)
 }
 
 function setUpLines(lines, lines_array) {

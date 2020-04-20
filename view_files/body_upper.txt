@@ -11,14 +11,13 @@
 
         </div>
 
-        <div class="not_the_toolbar_you_deserve_but_the_toolbar_you_need">
-            <div class="reading_sped">reading speed</div><br>
-            <div id='wpm_plus' class="button_ghost_dark">*</div><br>
-            <div id='wpm' class="button_ghost_dark">4</div><br>
-            <div id='wpm_minus' class="button_ghost_dark">*</div><br>
-        </div>
+    <div class="not_the_toolbar_you_deserve_but_the_toolbar_you_need" id="toolbar">
+      <div class='barton' id='marker_barton'>Tt</div>
+      <div class='barton' id='sped_barton'>420</div>
+      <div class='barton' id='fovea_barton'>2</div>
+    </div>
         
     </div>
 
     <div class="framer">
-        <div id='mapper'> </div>
+    <div id='mapper'> </div>
