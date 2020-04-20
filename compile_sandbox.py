@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from bs4 import BeautifulSoup
 
 with open('view_files/header.txt', 'r') as file:
     header = file.read().replace('\n', '')
@@ -17,5 +16,5 @@ with open('view_files/body_downer.txt', 'r') as file:
 compiled_html = "<!DOCTYPE html> <html>" + header + body_upper + reader + body_downer + "</html>"
 
 file = open("index.html", "w")
-file.write(BeautifulSoup(compiled_html).prettify())
+file.write(compiled_html)
 file.close()

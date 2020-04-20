@@ -35,7 +35,6 @@ The simplest way to obtain that HTML is to
 * click `Inspect element` 
 * copy the `<div id="reader">` including its contents and its closing tag. 
 * paste that in the `view_files/reader.txt`
-* `$ pip install beautifulsoup4`
 * `$ python3 compile_sandbox.py`
 
 ## Contact
