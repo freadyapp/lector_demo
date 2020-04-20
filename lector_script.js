@@ -21,10 +21,10 @@ const not_running_pointer_transition_css = 'all 100ms ease'
 const distance_from_monitor = 40
 const cm_to_px = 37.7952755906
 const marker_colors_ary = ['#96ADFC', '#A8F29A', '#D8D3D6', '#EDDD6E', '#EDD1B0', '#B987DC', '#E0A6AA', '#A5F7E1', '#F8FD89']
-const animation_ms_first_word_in_line = 5
-const animation_ms_last_word_in_line = 5
-const marker_width_animation_time = 50
-const marker_height_animation_time = 50
+const animation_scale_first_word_in_line = 3
+const animation_scale_last_word_in_line = 3
+const marker_width_animation_time = 100
+const marker_height_animation_time = 100
 const small_words_letters = 3
 const first_line_instances_multiplier = 1.5
 const last_line_instances_multiplier = 1.5
@@ -97,6 +97,10 @@ class Marker {
     }
   }
 
+  build_transition_css(time, type="linear"){
+    return `all ${time}ms ${type}, width ${marker_width_animation_time}ms ease, height ${marker_height_animation_time}ms ease`
+  }
+
   get modes(){
     return ([
       this.build_mode(this.color_hex),
@@ -126,8 +130,6 @@ class Marker {
 
   mark3(that, fovea) {
     let w = fovea_to_px(fovea)
-    let t = that.next ? that.pre ? that.pre.time + 1 : animation_ms_first_word_in_line : animation_ms_last_word_in_line // TODO ease animation
-    t *= instance_ms
     let left = that.left
     let calculated_words = [that]
 
@@ -141,7 +143,10 @@ class Marker {
         'width': `${w}px`,
         'height': that.parent.height*2
       });
-      this.dom.style.transition = `all ${t}ms linear, width ${marker_width_animation_time}ms ease, height ${marker_height_animation_time}ms ease`
+
+      let time = that.next ? that.pre ? that.pre.time + 1 : animation_scale_first_word_in_line : animation_scale_last_word_in_line
+      let type = that.next ? that.pre ? 'linear' : 'ease' : 'ease'
+      this.dom.style.transition = this.build_transition_css(time * instance_ms, type)
       marker_force_resize = false
       this.last_marked = calculated_words
     }
