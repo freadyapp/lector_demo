@@ -10,16 +10,44 @@ const pointer_base_css = {
   'opacity': '100%',
   'mix-blend-mode': 'darken'
 }
+const word_element_css = {
+  'cursor': 'pointer'
+}
 
 const toolbar_div_class_name = 'not_the_toolbar_you_deserve_but_the_toolbar_you_need'
 const not_running_pointer_transition_css = 'all 100ms ease'
 const distance_from_monitor = 40
 const cm_to_px = 37.7952755906
+const marker_colors_ary = ['#7FDBFF', '#01FF70', '#F012BE', '#DDDDDD', '#FF851B', '#FF4136', '#FFDC00']
+const animation_ms_first_word_in_line = 5
+const animation_ms_last_word_in_line = 5
+const marker_width_animation_time = 50
+const marker_height_animation_time = 50
+const small_words_letters = 3
+const first_line_instances_multiplier = 1.5
+const last_line_instances_multiplier = 1.5
 
 let initial_wpm = 250
 let initial_fovea = 2
 let instance_ms = wpm2ms(initial_wpm)
 
+
+function word_click() {
+  marker.dom.style.transition = not_running_pointer_transition_css
+  marker_force_word_width = true
+  moving = false
+  toolbar.auto = false
+  cursor = this.parent.public_index
+}
+
+function word_over() {
+  this.style.backgroundColor = 'lightgray'
+  this.style.padding = '10px'
+}
+function word_out() {
+  this.style.backgroundColor = 'transparent'
+  this.style.padding = '0px'
+}
 
 // classes
 
@@ -55,7 +83,6 @@ class Marker {
     this.color = 0
     this.mode_index = 0
     this.mode = 0
-
     this.last_marked = null
   }
 
@@ -84,7 +111,7 @@ class Marker {
   }
 
   get colors(){
-    return ['#7FDBFF', '#01FF70', '#F012BE', '#DDDDDD', '#FF851B', '#FF4136', '#FFDC00']
+    return marker_colors_ary
   }
 
   set color(code) {
@@ -97,41 +124,28 @@ class Marker {
   }
 
   mark3(that, fovea) {
-    let t = 0
-    let w = 0
-
-    // w += el != null ? run ? that.parent.avg_word_length : el.width : 50
-    // w += 3*that.parent.avg_word_length
-
-    w = fovea_to_px(fovea)
-    t = that.next ? that.pre ? that.pre.time+1 : 5 : 5 // animation time if first or last of the line animate the pointer move 
+    let w = fovea_to_px(fovea)
+    let t = that.next ? that.pre ? that.pre.time + 1 : animation_ms_first_word_in_line : animation_ms_last_word_in_line 
     t *= instance_ms
-
-    // let left = that.pre ? that.pre.left-3 : that.left
     let left = that.left
     let calculated_words = [that]
 
     if (marker_force_resize || !arraysEqual(calculated_words, this.last_marked)){
-      let shift = ((that.right - that.left) - w)/2
-      print(`marking ${that.dom.textContent} for ${t}`)
+      let shift = ((that.right - that.left) - w)/2      
       $(this.dom).offset({
         'top': that.parent.top - that.parent.height / 4,
         'left': left+shift
       });
-
       $(this.dom).css({
         'width': `${w}px`,
         'height': that.parent.height*2
       });
-
-      this.dom.style.transition = `all ${t}ms linear, width 100ms ease, height ${10}ms ease`
+      this.dom.style.transition = `all ${t}ms linear, width ${marker_width_animation_time}ms ease, height ${marker_height_animation_time}ms ease`
       marker_force_resize = false
       this.last_marked = calculated_words
     }
-    
     $(this.dom).css(this.mode_css)
   }
-
 }
 
 class MapElement {
@@ -167,7 +181,6 @@ class Line extends MapElement {
     this.findex = findex
     this.avg_word_length = 0
     this.build_words(lt.getElementsByTagName('wt'))
-    
   }
 
   build_words(doms){
@@ -179,25 +192,21 @@ class Line extends MapElement {
         this.time += w.time
         this.avg_word_length += w.width + 2
       }
-
     }
+
     this.avg_word_length /= this.words.length
   }
 }
 
 class Word extends MapElement {
-  constructor(wt, p, li, pi) {
+  constructor(wt, p, li) {
     super(wt, p)
     this.content = wt.textContent
-    this.time = parseInt(wt.getAttribute('l')) > 3 ? parseInt(wt.getAttribute('l')) : 3
+    this.time = parseInt(wt.getAttribute('l')) > small_words_letters ? parseInt(wt.getAttribute('l')) : small_words_letters
     this.local_index = li
-
-    //css
-    $(this.dom).css({
-      'cursor': 'pointer'
-    });
+    $(this.dom).css(word_element_css);
     
-    // listeners setup 
+    // listeners setup
     this.dom.parent = this
     this.dom.addEventListener("click", word_click);
     this.dom.addEventListener("mouseover", word_over, false);
@@ -229,24 +238,6 @@ class Word extends MapElement {
   }
   
 }
-
-function word_click() {
-  marker.dom.style.transition = not_running_pointer_transition_css
-  marker_force_word_width = true
-  moving = false
-  toolbar.auto = false
-  cursor = this.parent.public_index
-}
-
-function word_over() {
-  this.style.backgroundColor = 'lightgray'
-  this.style.padding = '10px'
-}
-function word_out(){
-  this.style.backgroundColor = 'transparent'
-  this.style.padding = '0px'
-}
-
 
 // set up
 
@@ -352,8 +343,8 @@ function tiktok() {
 
   if (!last_of_the_line && current_word.next==null) {
     last_of_the_line= true
-    print('last of the line')
-    instances *= Math.floor(toolbar.wpm/100)
+    instances *= last_line_instances_multiplier
+    // instances *= Math.floor(toolbar.wpm/100)
   }
 
   if (instance < instances) {
@@ -367,7 +358,8 @@ function tiktok() {
     instances = all_words[cursor].time
     if (last_of_the_line) {
       last_of_the_line = false
-      instances *= Math.floor(toolbar.wpm / 100)
+      instances *= first_line_instances_multiplier
+      // instances *= Math.floor(toolbar.wpm / 100)
     }
 
   }
@@ -481,7 +473,6 @@ function keyRelease(key) {
 // utility functions
 
 function print(val) {
-  // TODO deprecate this
   console.log(val)
 }
 
