@@ -125,14 +125,14 @@ class Marker {
   }
 
   mark3(that, fovea) {
-    let w = fovea_to_px(fovea)+10
+    let w = fovea_to_px(fovea)
     let t = that.next ? that.pre ? that.pre.time + 1 : animation_ms_first_word_in_line : animation_ms_last_word_in_line // TODO ease animation
     t *= instance_ms
     let left = that.left
     let calculated_words = [that]
 
     if (marker_force_resize || !arraysEqual(calculated_words, this.last_marked)){
-      let shift = ((that.right - that.left) - w)/2      
+      let shift = (that.width-w)/2
       $(this.dom).offset({
         'top': that.parent.top - that.parent.height / 4,
         'left': left+shift
@@ -167,10 +167,10 @@ class MapElement {
     return $(this.dom).offset().top
   }
   get right() {
-    return this.dom.getBoundingClientRect().right
+    return $(this.dom).offset().right
   }
   get bottom() {
-    return $(this.dom).offset().bottom
+    return this.dom.getBoundingClientRect().bottom
   }
 }
 
