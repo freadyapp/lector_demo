@@ -4,6 +4,7 @@ const pointer_base_css = {
   'position': 'absolute',
   'outline': 'solid 0px red',
   'background-color': 'transparent',
+  'background-image': 'linear-gradient(0.25turn, rgba(255,0,0,0), #ebf8e1,#ebf8e1,#ebf8e1 , rgba(255,0,0,0) )',
   'width': '10px',
   'height': '20px',
   'z-index': '10',
@@ -89,7 +90,7 @@ class Marker {
 
   build_mode(backColorHex, bordersBottomString='0px', bordersLeftString='0px', opacity='100%' ){
     return {
-      'background-color': backColorHex,
+      'background': backColorHex,
       'border-bottom': bordersBottomString,
       'border-left': bordersLeftString,
       'opacity' : opacity
@@ -99,10 +100,9 @@ class Marker {
   get modes(){
     return ([
       this.build_mode(this.color_hex),
-      this.build_mode('transparent', '2px solid' + this.color_hex),
-      this.build_mode('transparent', '5px solid' + this.color_hex),
-      this.build_mode('transparent', '0px solid', '5px solid'+this.color_hex),
-      this.build_mode(this.color_hex, '0px', '0px', '20%')
+      this.build_mode(`linear-gradient(0.25turn, rgba(255,0,0,0),${this.color_hex}, ${this.color_hex}, ${this.color_hex}, rgba(255,0,0,0) )`),
+      this.build_mode('transparent', '2px solid' + this.color_hex)
+
     ])
   }
 
@@ -125,8 +125,8 @@ class Marker {
   }
 
   mark3(that, fovea) {
-    let w = fovea_to_px(fovea)
-    let t = that.next ? that.pre ? that.pre.time + 1 : animation_ms_first_word_in_line : animation_ms_last_word_in_line 
+    let w = fovea_to_px(fovea)+10
+    let t = that.next ? that.pre ? that.pre.time + 1 : animation_ms_first_word_in_line : animation_ms_last_word_in_line // TODO ease animation
     t *= instance_ms
     let left = that.left
     let calculated_words = [that]
