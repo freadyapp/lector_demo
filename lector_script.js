@@ -62,12 +62,15 @@ class Toolbar {
     this.fovea_dom = document.getElementById('fovea_barton')
 
     this.wpm_val = initial_wpm
-    this.wpm = this.wpm_val
+    this.wpm = initial_wpm
 
     this.fovea_val = initial_fovea
-    this.fovea = this.fovea_val
-
+    this.fovea = initial_fovea
     this.color = 0
+
+    this.mode_index = 0
+    this.mode = 0
+
     this.auto = false
   }
 
@@ -90,6 +93,7 @@ class Toolbar {
     return this.fovea_val
   }
 
+
   get colors() {
     return marker_colors_ary
   }
@@ -104,33 +108,17 @@ class Toolbar {
     return this.color_hex
   }
 
-}
 
-class Marker {
-
-  constructor(div, toolbar) {
-    this.dom = div
-    this.toolbar = toolbar
-
-    this.mode_index = 0
-    this.mode = 0
-    this.last_marked = null
-  }
-
-  build_mode(backColorHex, bordersBottomString='0px', bordersLeftString='0px', opacity='100%' ){
+  build_mode(backColorHex, bordersBottomString = '0px', bordersLeftString = '0px', opacity = '100%') {
     return {
       'background': backColorHex,
       'border-bottom': bordersBottomString,
       'border-left': bordersLeftString,
-      'opacity' : opacity
+      'opacity': opacity
     }
   }
 
-  build_transition_css(time, type="linear"){
-    return `all ${time}ms ${type}, width ${marker_width_animation_time}ms ease, height ${marker_height_animation_time}ms ease`
-  }
-
-  get modes(){
+  get modes() {
     return ([
       this.build_mode(this.color),
       this.build_mode(`linear-gradient(0.25turn, rgba(255,0,0,0),${this.color}, ${this.color}, ${this.color}, rgba(255,0,0,0) )`),
@@ -138,19 +126,39 @@ class Marker {
     ])
   }
 
-  get mode_css(){
+  get mode_css() {
     this.mode = this.mode_index
     return this.modes[this.mode_index]
   }
 
+  set mode(code) {
+    this.mode_index = code % this.modes.length
+  }
+
+}
+
+class Marker {
+
+  constructor(div, toolbar) {
+    this.dom = div
+    this.toolbar = toolbar
+    this.last_marked = null
+  }
+
+  build_transition_css(time, type="linear"){
+    return `all ${time}ms ${type}, width ${marker_width_animation_time}ms ease, height ${marker_height_animation_time}ms ease`
+  }
+
+
   get color(){
-    // print(this.toolbar.color)
     return this.toolbar.color
   }
 
-  set mode(code){
-    this.mode_index = code % this.modes.length
+  get mode(){
+
   }
+
+
 
   mark3(that, fovea) {
     let w = fovea_to_px(fovea)
@@ -174,7 +182,7 @@ class Marker {
       marker_force_resize = false
       this.last_marked = calculated_words
     }
-    $(this.dom).css(this.mode_css)
+    $(this.dom).css(this.toolbar.mode_css)
   }
 }
 
@@ -449,7 +457,7 @@ function keyPress(key) {
     case 77:
       //m
       mode_cursor += 1
-      marker.mode = mode_cursor
+      toolbar.mode = mode_cursor
       break;
     case 187:
       //= (intepret it as +)
