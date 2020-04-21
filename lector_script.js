@@ -31,6 +31,8 @@ const last_line_instances_multiplier = 1.5
 
 let initial_wpm = 250
 let initial_fovea = 2
+let initial_color = 0
+let initial_mode = 0
 let instance_ms = wpm2ms(initial_wpm)
 
 
@@ -60,17 +62,10 @@ class Toolbar {
     this.marker_dom = document.getElementById('marker_barton')
     this.wpm_dom = document.getElementById('sped_barton')
     this.fovea_dom = document.getElementById('fovea_barton')
-
-    this.wpm_val = initial_wpm
     this.wpm = initial_wpm
-
-    this.fovea_val = initial_fovea
     this.fovea = initial_fovea
-    this.color = 0
-
-    this.mode_index = 0
-    this.mode = 0
-
+    this.color = initial_color
+    this.mode = initial_mode
     this.auto = false
   }
 
@@ -354,9 +349,6 @@ let moving = false
 let current_word = null
 let current_line = null
 
-let color_cursor = 0
-let mode_cursor = 0
-
 let last_of_the_line = false
 let first_of_the_line = false
 
@@ -451,13 +443,12 @@ function keyPress(key) {
       break;
     case 67:
       //c
-      color_cursor += 1
-      toolbar.color = color_cursor
+      toolbar.color = toolbar.color_index+1
       break;
     case 77:
       //m
-      mode_cursor += 1
-      toolbar.mode = mode_cursor
+      toolbar.mode = toolbar.mode_index + 1
+
       break;
     case 187:
       //= (intepret it as +)
